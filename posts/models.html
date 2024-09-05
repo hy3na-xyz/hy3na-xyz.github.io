@@ -50,7 +50,7 @@
         <p>
         In recent years, methods have been proposed to try and address this downfall like tensor (intra-layer) model parallelism, where matrix multiplications within each
         transformer layer are split over multiple GPUs (see <a href="https://arxiv.org/pdf/1909.08053">Megatron</a>). Although this works well for models of sizes up to 20 billion parameters 
-        on NVIDIA DGX A100 servers (with 8 x 80BG-A100 GPUs), it still breaks down for larger models. So lets try and do the logical thing and split the model across 
+        on NVIDIA DGX A100 servers (with 8 x 80GB-A100 GPUs), it still breaks down for larger models. So lets try and do the logical thing and split the model across 
         multiple multi-GPU servers. This also has drawbacks: 
         <ol>
             <li>The All-Reduce communication required for tensor parallelism needs to go through inter-server links which are slower than the high bandwidth 
