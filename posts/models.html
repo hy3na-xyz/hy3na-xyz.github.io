@@ -56,7 +56,7 @@
             <li>The All-Reduce communication required for tensor parallelism needs to go through inter-server links which are slower than the high bandwidth 
                 <a href= "https://blogs.nvidia.com/blog/what-is-nvidia-nvlink/">NVLink</a> available within a multi-GPU server, some techniques however have been tried to resolve this (see <a href="https://arxiv.org/pdf/2311.08105">DiLoCo</a>).
             </li><br/>
-            <li>A high degree of model parallelism can create small matrix multiplications (GEMMs), potentially decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency</a>.)</li>
+            <li>A high degree of model parallelism can create small matrix multiplications (GEMMs), potentially decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency</a>).</li>
         </ol>
     Pipeline parallelism is another technique used to support the training of larger models where the model is divided into different stages, and each stage consists of a shard of the model's layers.
     These are then distributed across multiple GPUs (e.g if you have a model with 12 layers and 3 GPUs, you might assign 4 layers to each GPU or some different arrangement). 
