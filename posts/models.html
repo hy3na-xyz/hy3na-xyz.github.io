@@ -54,9 +54,11 @@
         multiple multi-GPU servers. This also has drawbacks: 
         <ol>
             <li>The All-Reduce communication required for tensor parallelism needs to go through inter-server links which are slower than the high bandwidth 
-                <a href= "https://blogs.nvidia.com/blog/what-is-nvidia-nvlink/">NVLink</a> available within a multi-GPU server, some techniques however have been tried to resolve this (see <a href="https://arxiv.org/pdf/2311.08105">DiLoCo</a>).
+                <a href= "https://blogs.nvidia.com/blog/what-is-nvidia-nvlink/">NVLink</a> available within a multi-GPU server, some techniques however have been tried to resolve this (see <a href="https://arxiv.org/pdf/2311.08105">DiLoCo</a>). 
             </li><br/>
-            <li>A high degree of model parallelism can create small matrix multiplications, potentially decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency</a>).</li>
+            <li>A high degree of model parallelism can create small matrix multiplications, decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency</a>). This is because 
+            if we have a large model that fully utilizes a 1 GPU during a GEMM, splitting the model across 4 GPUs shrinks the size of the GEMM on each individual GPU leading to machines with underutilized resources. 
+        Furthermore, if the model sharding (partitioning) results in smaller matrices or sub-operations this can lead to more frequent GEMMs on each device, which are less efficient for the GPU to compute.</li>
         </ol>
     Pipeline parallelism is another technique used to support the training of larger models where the model is divided into different stages, and each stage consists of a shard of the model's layers.
     These are then distributed across multiple GPUs (e.g if you have a model with 12 layers and 3 GPUs, you might assign 4 layers to each GPU or some different arrangement). 
