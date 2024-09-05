@@ -58,7 +58,7 @@
             </li><br/>
             <li>A high degree of model parallelism can create small matrix multiplications (GEMMs), potentially decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency</a>.)</li>
         </ol>
-    Pipeline parallelism is another technique used to support the training of larger models, where the model is divided into different stages, and each stage consists of a shard of the model's layers.
+    Pipeline parallelism is another technique used to support the training of larger models where the model is divided into different stages, and each stage consists of a shard of the model's layers.
     These are then distributed across multiple GPUs (e.g if you have a model with 12 layers and 3 GPUs, you might assign 4 layers to each GPU or some different arrangement). 
   Layers can be assigned to workers in various ways, and various schedules for the forward and backward passes can be used. The layer assignment and scheduling 
     strategy results in different performance tradeoffs. Regardless of the schedule chosen, the optimizer steps need to be synchronized across devices 
