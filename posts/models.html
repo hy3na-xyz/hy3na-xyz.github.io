@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="laugh at the competition." />
+    <title>Train SOTA? Not so fast</title>
+    <style>
+        body {
+            max-width: 700px;  
+            margin: 5vh auto; 
+            padding: 0 20px;   
+            font-family: monospace;
+            line-height: 1.4em;
+            background-color: rgb(196, 196, 196);
+            color: rgb(0, 0, 0);
+        }
+
+        body a { color: rgb(0, 0, 0); }
+        body .thread { color: rgb(0, 0, 0); text-decoration: none; }
+        body .thread:hover { text-decoration: underline; }
+        body hr { border: 2.5px dotted rgb(0, 0, 0); }
+        body p:not(:nth-child(2)) { margin-top: 30px; }
+        body p:nth-child(2) { margin-top: 0px; }
+        body h3:first-child { margin-bottom: 5px; font-size: 20px; }
+        body h4 { margin-top: 30px; }
+        body h5 { margin: 0px; font-weight: 100; }
+        @media only screen and (max-width: 650px) { 
+            body { width: 90vw !important; } 
+          }
+    </style>
+</head>
+<body>
+    <main>
+    < <a href= "../index.html" >Return to home</a> 
+    <p></p>
+    <p></p>
+    <h2>Train SOTA? Not so fast.</h2>
+    <hr />
+    <p>
+        A lot of people want to be able to train their own multimodal large language models (MLLMs). Assuming you got your data from <a href="https://www.business-humanrights.org/en/latest-news/philippines-scale-ai-creating-race-to-the-bottom-as-outsourced-workers-face-poor-conditions-in-digital-sweatshops-incl-low-wages-withheld-payments/"> Sweatshop AI</a> and your GPU from Jensen, you still can't really get started. This is because of two main reasons: 
+        <ol>
+            <li>It is no longer possible to fit the parameters of these models in the main memory of even the largest GPUs (80BG-A100 cards still aren't cutting it).</li><br/>
+            <li>Even if you could fit the model in a single GPU by swapping parameters between host and device memory, the high number of compute ops required results
+                in extremely long training times (e.g. training GPT-3 with 175 billion params would require 288 years with a single V100).
+            </li>
+        </ol>
+        Naturally we'll try and throw parallelism and multinode clusters at this problem. For the most part, data-parallel scale out tends to work well for models that are particularly parameter efficient 
+        (e.g. they have high ratio of FLOPS per forward pass / # of parameters). Unfortunately, this technique also has its limitations. Particularly as the number of GPUs increases, the communication overhead kills performance as more machines sit idle waiting for gradient updates from <a href= "https://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/">Ring All-Reduce</a> or <a href= "https://d2l.ai/chapter_computational-performance/parameterserver.html">parameter servers</a>.
+        <p>
+        In recent years, methods have been proposed to try and address this downfall like tensor (intra-layer) model parallelism, where matrix multiplications within each
+        transformer layer are split over multiple GPUs (see <a href="https://arxiv.org/pdf/1909.08053">Megatron</a>). Although this works well for models of sizes up to 20 billion parameters 
+        on NVIDIA DGX A100 servers (with 8 x 80BG-A100 GPUs), it still breaks down for larger models. So lets try and do the logical thing and split the model across 
+        multiple multi-GPU servers. This also has drawbacks: 
+        <ol>
+            <li>The All-Reduce communication required for tensor parallelism needs to go through inter-server links which are slower than the high bandwidth 
+                <a href= "https://blogs.nvidia.com/blog/what-is-nvidia-nvlink/">NVLink</a> available within a multi-GPU server, some techniques however have been tried to resolve this (see <a href="https://arxiv.org/pdf/2311.08105">DiLoCo</a>).
+            </li><br/>
+            <li>A high degree of model parallelism can create small matrix multiplications (GEMMs), potentially decreasing GPU utilization (see <a href="https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html#cublas-tile-dim">tile efficiency).</a></li>
+        </ol>
+    Pipeline parallelism is another technique used to support the training of larger models, where the model is divided into different stages, and each stage consists of a shard of the model's layers.
+    These are then distributed across multiple GPUs (e.g if you have a model with 12 layers and 3 GPUs, you might assign 4 layers to each GPU or some different arrangement). 
+  Layers can be assigned to workers in various ways, and various schedules for the forward and backward passes can be used. The layer assignment and scheduling 
+    strategy results in different performance tradeoffs. Regardless of the schedule chosen, the optimizer steps need to be synchronized across devices 
+    leading to a pipeline flush at the end of every batch, where:
+    <ol>
+        <li>Ongoing minibatches are allowed to complete execution.</li><br/>
+        <li>No new microbatches are injected into the pipeline.</li>
+    </ol> 
+    The pipeline flush can consume up to 50% of the total training time, depending on the number of microbatches injected into the pipeline. This type of strict 
+    optimizer semantic ensures training consistency at the cost of performance. Researchers have tried to relax these optimizer semantics to improve throughput but it seems to be at the cost of convergence or final model accuracy (see <a href="https://arxiv.org/pdf/2006.09503v3">PipeDream-2BW</a>).
+    <p>
+    I'd like to think that for most people who've been reading thus far have come to the realization that there are too many modes of parallelism to handle. Maybe it'd just be better to try and combine all modes of parallelism through a hybrid approach. Unfortunately integrating pipeline, data, tensor parallelism haphazardly causes non-trivial interactions such as a direct impact on the amount of
+    communication, the compute efficiency with which kernels are executed, as well as the idle time workers spend waiting for computation due to pipeline flushes referred to as pipeline bubbles. This can lead to 2x lower throughput even with high-bandwidth between servers with poor combinations of parallelism.
+    <p>Everything I've shared thus far only barely scratches the surface of the field of large scale distributed training
+         without even touching on the realistic considerations to take this knowledge into production like monetary budget, network topology, constantly changing model architectures, etc. So what's the solution to figure out how
+         to achieve high throughput + low communication + cost efficient training? Can we also mirror this paradigm for inference?
+         
+    </p>
+    <p>I got some ideas. Stay tuned.
+    </p>
+    <p></p><i>Remember to always laugh at the competition.</i></p>
+    <b>- hyena</b>
+    </html>
