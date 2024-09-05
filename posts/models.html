@@ -73,7 +73,7 @@
     I'd like to think that for most people who've been reading thus far have come to the realization that there are too many modes of parallelism to handle. Maybe it'd just be better to try and combine all modes of parallelism through a hybrid approach. Unfortunately integrating pipeline, data, tensor parallelism haphazardly causes non-trivial interactions such as a direct impact on the amount of
     communication, the compute efficiency with which kernels are executed, as well as the idle time workers spend waiting for computation due to pipeline flushes referred to as pipeline bubbles. This can lead to 2x lower throughput even with high-bandwidth between servers with poor combinations of parallelism.
     <p>Everything I've shared thus far only barely scratches the surface of large scale distributed training
-         without even touching on the realistic considerations to take this knowledge into production like monetary budget, network topology, constantly changing model architectures, etc. So what's the solution to figure out how
+         without even touching on the realistic considerations to take this knowledge into production like budget, network topology, constantly changing model architectures, etc. So what's the solution to figure out how
          to achieve high throughput + low communication + cost efficient training? Can we also mirror this paradigm for inference?
          
     </p>
