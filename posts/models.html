@@ -65,7 +65,7 @@
     leading to a pipeline flush at the end of every batch, where:
     <ol>
         <li>Ongoing minibatches are allowed to complete execution.</li><br/>
-        <li>No new microbatches are injected into the pipeline.</li>
+        <li>No new minibatches are injected into the pipeline.</li>
     </ol> 
     The pipeline flush can consume up to 50% of the total training time, depending on the number of microbatches injected into the pipeline. This type of strict 
     optimizer semantic ensures training consistency at the cost of performance. Researchers have tried to relax these optimizer semantics to improve throughput but it seems to be at the cost of convergence or final model accuracy (see <a href="https://arxiv.org/pdf/2006.09503v3">PipeDream-2BW</a>).
