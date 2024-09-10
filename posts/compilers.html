@@ -168,7 +168,7 @@ return %2
     Basically, Linalg gives you enough of a starting point to work with when considering making your AI compiler. Still someone 
     might ask why Linalg? Don't machine learning frameworks have their own MLIR dialects? Shouldn't I just use that?
     <p></p>
-    So yeah you're right, different frameworks like TensorFlow and PyTorch implement their own MLIR dialects like StableHLO and Torch 
+    So yeah you're right, different frameworks like TensorFlow and PyTorch implement their own MLIR dialects like <a href="https://github.com/openxla/stablehlo">StableHLO</a> and <a href="https://github.com/llvm/torch-mlir">Torch</a> 
     which correspond to their internal graph formats. The issue is that these high-level dialects have different semantics
     specific to their frameworks. There are also other high-level dialects like <a href="https://mlir.llvm.org/docs/Dialects/TOSA/">TOSA</a>, but they also have their 
     individual semantics, which makes it hard to work on common optimization infrastructure every framework needs. <p></p>The advantage of 
