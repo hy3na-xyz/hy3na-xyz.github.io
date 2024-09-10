@@ -7,15 +7,15 @@
     <title>The Den</title>
     <style>
         body {
-            max-width: 650px;  
-            margin: 20vh auto; 
-            padding: 0 20px;   
+            max-width: 700px;
+            margin: 20vh auto;
+            padding: 0 20px;
             font-family: monospace;
             line-height: 1.4em;
             background-color: rgb(237, 237, 237);
             color: rgb(0, 0, 0);
+            user-select: none;
         }
-
         body a { color: rgb(0, 0, 0); }
         body .thread { color: rgb(0, 0, 0); text-decoration: none; }
         body .thread:hover { text-decoration: underline; }
@@ -25,15 +25,19 @@
         body h3:first-child { margin-bottom: 5px; font-size: 20px; }
         body h4 { margin-top: 30px; }
         body h5 { margin: 0px; font-weight: 100; }
-        @media only screen and (max-width: 650px) { 
-            body { width: 90vw !important; } 
-          }
-          body {
-            user-select: none; 
+        @media only screen and (max-width: 650px) {
+            body { width: 90vw !important; }
         }
-
         a {
-            user-select: text; 
+            user-select: text;
+        }
+        footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
         }
     </style>
 </head>
@@ -41,7 +45,7 @@
     <main>
         <h2>hyena</h2>
         <p></p>
-        x.com/<a href="https://x.com/hy3na_xyz">hy3na_xyz</a> <br /> 
+        x.com/<a href="https://x.com/hy3na_xyz">hy3na_xyz</a> <br />
         <a href="mailto:contact@hy3na.com">contact@hy3na.com</a><br/>
         <p>I do F1 but for software and hardware. Former quantitative researcher at a HFT.</p>
         <h3>Currently:</h3>
@@ -52,10 +56,13 @@
             <li>fusing kernels.</li>
         </ul>
         <br />
-        <hr />
         <h3>Posts:</h3>
-        > <a href="../hy3na-xyz.github.io/posts/compilers.html">Towards high-performance AI compilers.</a> <br />
-        > <a href="../hy3na-xyz.github.io/posts/parallelism.html">Train SOTA? Not so fast.</a><br />
+        > <a href = "./posts/compilers.html">Towards high-performance AI compilers.</a><br/>
+        > <a href ="./posts/parallelism.html">Train SOTA? Not so fast.</a>
+        <footer>
+            <hr />
+            <p><i>Always laugh at the competition.</i></p>
+        </footer>
     </main>
 </body>
 </html>
