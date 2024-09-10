@@ -223,7 +223,7 @@ consecutive accesses which improves spatial locality and cache behavior. By brin
 propagate the data layout through the IR instead of paying the price for every execution. 
     This set of dialects with tiled and fused operations can then be bufferized by a <a href="https://mlir.llvm.org/docs/Bufferization/"><i>one shot bufferization pass</i></a>, cleaned, 
     and lowered to further low level dialects where library/hardware specific passes can operate on already memory-friendly shape. And voila, 
-    we now have a common representation that I call Tensor-Linalg that simplifies the optimization process across tons of frameworks all the way down to the hardware. 
+    we now have a common representation that we call Tensor-Linalg that simplifies the optimization process across tons of frameworks all the way down to the hardware. 
     </p>
     </p>
 <h3>XSMM.</h3>
@@ -296,7 +296,7 @@ You'll learn existing best practices, e.g. writing and maintaining an IR spec, b
 Below is a sample compilation strategy that you can follow using what you've hopefully learned from this post to be able to make your own AI compiler: 
 <ol>
     <li>An ingress layer, that extracts MLIR from existing frameworks into our common representation <i>compiler IR</i>.</li><br/>
-    <li>high-level hardware agnostic Linalg pipeline.</li><br/>
+    <li>high-level hardware agnostic Tensor-Linalg pipeline.</li><br/>
     <li>low-level lowering dialect.</li><br/>
     <li>lowering to hardware dialects (XSMM)</li><br/>
     <li>An execution strategy for the generated code, including runtime libraries and wrappers.</li>
