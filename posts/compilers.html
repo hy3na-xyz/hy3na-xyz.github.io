@@ -68,7 +68,7 @@
     <p>Making interpreted languages run fast for specialized hardware like ASICS is difficult.<p>
     <p></p>
     <h3>Solution.</h3>
-    </p><p>A killer compiler.</p><p></p>
+    </p><p>A killer compiler. Let's take a look at this paper in particular from <a href = "https://arxiv.org/pdf/2404.15204">Intel</a>.</p><p></p>
     <h3>Multi-Level Intermediate Representation (MLIR). </h3>
     <p> <a href= "https://arxiv.org/pdf/2002.11054">MLIR</a> is intended to be a hybrid <a href="https://en.wikipedia.org/wiki/Intermediate_representation">IR</a> that allows 
         us to develop reusable and extensible compiler infrastructure. It came from the realization that 
@@ -301,7 +301,7 @@ Below is a sample compilation strategy that you can follow using what you've hop
     <li>lowering to hardware dialects (XSMM)</li><br/>
     <li>An execution strategy for the generated code, including runtime libraries and wrappers.</li>
 </ol>
-Code from this post from <a href =" https://arxiv.org/pdf/2404.15204">Intel</a>. Good luck. <p></p>
+Good luck. <p></p>
 </p> I personally believe that the only way to maximize performance is hardware / software co-design, starting with the compiler.
 A testament to this that I'm pretty inspired by is <a href="https://groq.com/meet-groq-compiler-solutions-for-a-symbiotic-software-hardware-ecosystem/">Groq</a>. By 
 working on a compiler first before taping out any chips, they were able to create flexibility for workloads. Today they're known for LLM inference speeds 
