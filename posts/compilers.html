@@ -88,7 +88,7 @@
     </p>
     <p>
         We also need to have a good understanding of <a href="https://mlir.llvm.org/docs/Dialects/">dialects</a>. A dialect is a basic structure that enables the MLIR to implement a stack of reusable abstractions,
-        composed operations, types, attributes etc. Each abstraction encodes and preserves transformation validity preconditions directly int its IR, reducing the complexity and cost of analysis passes. 
+        composed operations, types, attributes etc. Each abstraction encodes and preserves transformation validity preconditions directly in its IR, reducing the complexity and cost of analysis passes. 
         Each dialect models a specific domain. In our case, it makes sense to use the <a href="https://mlir.llvm.org/docs/Dialects/Linalg/">Linalg</a> dialect which captures linear-algebra operations on either tensor or buffer operands + the 
             <a href="https://mlir.llvm.org/docs/Dialects/TensorOps/">Tensor</a> dialect for tensor creation. Below is 
         an example of a simple multi-layer perceptron (MLP) layer represented in Linalg + Tensor generic operations: <p></p>
