@@ -12,7 +12,7 @@
             padding: 0 20px;   
             font-family: monospace;
             line-height: 1.4em;
-            background-color: rgb(196, 196, 196);
+            background-color: rgb(237, 237, 237);
             color: rgb(0, 0, 0);
         }
 
@@ -28,6 +28,13 @@
         @media only screen and (max-width: 650px) { 
             body { width: 90vw !important; } 
           }
+          body {
+            user-select: none; 
+        }
+
+        a {
+            user-select: text; 
+        }
     </style>
 </head>
 <body>
@@ -40,14 +47,15 @@
         <h3>Currently:</h3>
         <ul>
             <li>implementing very fast distributed training / inference.</li>
-            <li>thinking about ml compilers and gpu scheduling.</li>
+            <li>thinking about ML compilers and GPU scheduling.</li>
             <li>hoping to tape out my own chip someday.</li>
             <li>fusing kernels.</li>
         </ul>
         <br />
         <hr />
         <h3>Posts:</h3>
-        > <a href="../hy3na-xyz.github.io/posts/models.html">Train SOTA? Not so fast.</a> [09/04/2024]<br />
+        > <a href="../hy3na-xyz.github.io/posts/compilers.html">Towards high-performance AI compilers.</a> &nbsp;&nbsp;&nbsp;&nbsp;[09/10/2024]<br />
+        > <a href="../hy3na-xyz.github.io/posts/parallelism.html">Train SOTA? Not so fast.</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[09/04/2024]<br />
     </main>
 </body>
 </html>

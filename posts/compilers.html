@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Always laugh at the competition." />
+    <title>Towards high-performance AI compilers.</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            max-width: 700px;  
+            margin: 5vh auto; 
+            padding: 0 20px;   
+            font-family: monospace;
+            line-height: 1.4em;
+            background-color: rgb(237, 237, 237);
+            color: rgb(0, 0, 0);
+        }
+        .code-box {
+            max-width: 100%;          
+            height: auto;             
+            overflow-x: auto;         
+            background-color: rgb(217, 217, 217);
+            border: 1px solid #000000;
+            padding: 10px;            
+            box-sizing: border-box;   
+            font-family: monospace;   
+        }
+
+        .code-box pre, .code-box code {
+            margin: 0;               
+            padding: 0;              
+            white-space: pre-wrap;   
+            word-wrap: break-word;   
+        }
+
+        body a { color: rgb(0, 0, 0); }
+        body .thread { color: rgb(0, 0, 0); text-decoration: none; }
+        body .thread:hover { text-decoration: underline; }
+        body hr { border: 2.5px dotted rgb(0, 0, 0); }
+        body p:not(:nth-child(2)) { margin-top: 30px; }
+        body p:nth-child(2) { margin-top: 0px; }
+        body h3:first-child { margin-bottom: 5px; font-size: 20px; }
+        body h4 { margin-top: 30px; }
+        body h5 { margin: 0px; font-weight: 100; }
+        @media only screen and (max-width: 650px) { 
+            body { width: 90vw !important; } 
+        }
+        body {
+            user-select: none; 
+        }
+
+        a {
+            user-select: text; 
+        }
+        .MathJax { font-size: 1em !important; }
+    </style>
+</head>
+<body>
+    <main>
+    < <a href= "../index.html" >Return to home</a> 
+    <p></p>
+    <p></p>
+    <h2>Towards high-performance AI compilers.</h2>
+    <hr />
+    <p></p>
+    <h3>Problem statement.</h3>
+    <p>Making interpreted languages run fast for specialized hardware like ASICS is difficult.<p>
+    <p></p>
+    <h3>Solution.</h3>
+    </p><p>A killer compiler.</p><p></p>
+    <h3>Multi-Level Intermediate Representation (MLIR). </h3>
+    <p> <a href= "https://arxiv.org/pdf/2002.11054">MLIR</a> is intended to be a hybrid <a href="https://en.wikipedia.org/wiki/Intermediate_representation">IR</a> that allows 
+        us to develop reusable and extensible compiler infrastructure. It came from the realization that 
+        modern ML frameworks like PyTorch & TensorFlow are composed of a lot of different compilers, graph technologies,
+        and runtime systems which do not share a common infrastructure or design point. Not to mention most of these 
+        systems didn't follow good compiler design practices in their development. The downstream effect was poor 
+        error messages, edge case failures, unpredictable performance, and an inability to develop new hardware that 
+        generalized the software stack. MLIR allows us to do a couple of things: 
+        <ol>
+            <li>Represent and manage dataflow graphs, including dynamic shapes and user-extensible operations for different ML frameworks.</li><br/>
+            <li>Perform a wide range of optimizations and transformations, such as loop optimizations, memory layout adjustments, and quantization for deep learning models.</li><br/>
+            <li>Handle code generation and hardware-specific transformations, including DMA insertion, cache management, vectorization, and support for hardware synthesis tools.</li><br/>    
+        </ol>
+        By providing an IR with only a few concepts being built and leaving most of the rest customizable, compiler developers are able to match the right 
+        abstraction level for their problems by introducing custom types, operations and attributes. In this post, we'll stick to 
+        <a href="https://en.wikipedia.org/wiki/Static_single-assignment_form">static single-assigment</a> (SSA) form, which seems suitable for imperative programming styles that machine learning and high-performance applications lower to.
+    </p>
+    <p>
+        We also need to have a good understanding of <a href="https://mlir.llvm.org/docs/Dialects/">dialects</a>. A dialect is a basic structure that enables the MLIR to implement a stack of reusable abstractions,
+        composed operations, types, attributes etc. Each abstraction encodes and preserves transformation validity preconditions directly int its IR, reducing the complexity and cost of analysis passes. 
+        Each dialect models a specific domain. In our case, it makes sense to use the <a href="https://mlir.llvm.org/docs/Dialects/Linalg/">Linalg</a> dialect which captures linear-algebra operations on either tensor or buffer operands + the 
+            <a href="https://mlir.llvm.org/docs/Dialects/TensorOps/">Tensor</a> dialect for tensor creation. Below is 
+        an example of a simple multi-layer perceptron (MLP) layer represented in Linalg + Tensor generic operations: <p></p>
+        <div class="code-box">
+            <pre><code>
+<b>// Comments are bolded.</b>
+<b>// Affine maps M,K * K,N -> M,N</b>
+# map-mk = affine_map<(d0, d1, d2) -> (d0, d2)>
+# map-kn = affine_map<(d0, d1, d2) -> (d2, d1)>
+# map-mn = affine_map<(d0, d1, d2) -> (d0, d1)>
+
+
+<b>// Nested affine fused multiply and accumulate operation (matmul).</b>
+%0 = linalg.generic {
+    indexing_maps = [#map-mk, #map-kn, #map-mn],
+
+    <b>// Reduction iterator type is the third, ie. ``d2'', which is the ``K'' dimension.</b>
+    iterator_types = ["parallel", "parallel", "reduction"]
+}
+
+
+<b>// Inputs are A and B matrices, C is the initialized of the output (generally zero).</b>
+ins(%A, %B : tensor<128x256xf32>, tensor<256x512xf32>)
+
+
+<b>// Output is the C matrix, representing initialization (C+= A * B).</b>
+outs(%C : tensor<128x512xf32>) {
+        ^bb0(%in: f32, %in_1: f32, %out: f32):
+            %3 = arith.mulf %in, %in_1 : f32
+            %4 = arith.addf %out, %3 : f32
+            linalg.yield %4 : f32
+} -> tensor<128x512xf32>
+
+
+<b>// Affine maps element-wise & broadcast. </b>
+# map-ew = affine_map<(d0, d1) -> (d0, d1)>
+# map-bc = affine_map<(d0, d1) -> (d1)>
+// A binary operation on the output of the matmul above (ex. Bias Add)
+%1 = linalg.generic {
+    indexing_maps = [#map-ew, #map-bc],
+    iterator_types = ["parallel", "parallel"]
+}
+
+
+<b>// Inputs are C and Bias matrices.
+// Note: the bias is a 1D vector being broadcasted to add element-wise.
+// Note: the C matrix is the initializer of the output, so it's in `outs`.</b>
+ins(%BIAS : tensor<512xf32>)
+outs(%0 : tensor<128x512xf32>) {
+        ^bb0(%in: f32, %out: f32):
+            %4 = arith.addf %in, %out : f32
+            linalg.yield %4 : f32
+} -> tensor<128x512xf32>
+
+<b>
+// A unnary operation on the output of the binary above (ex. ReLU).</b>
+%ZERO = arith.constant 0.000000e+00 : f32
+%2 = linalg.generic {
+// Element-wise parallel operation only uses MN maps
+    indexing_maps = [#map-ew],
+    iterator_types = ["parallel", "parallel"]
+}
+
+
+<b>// Input is just the result above.
+// Note: the result is the initializer of the output, so it's in `outs`.</b>
+outs(%1 : tensor<128x512xf32>) {
+        ^bb0(%out: f32):
+            %4 = arith.maximumf %out, %ZERO : f32
+            linalg.yield %4 : f32
+} -> tensor<128x512xf32>
+
+return %2
+            </code> </pre>
+        </div>
+        <p></p>
+    Basically, Linalg gives you enough of a starting point to work with when considering making your AI compiler. Still someone 
+    might ask why Linalg? Don't machine learning frameworks have their own MLIR dialects? Shouldn't I just use that?
+    <p></p>
+    So yeah you're right, different frameworks like TensorFlow and PyTorch implement their own MLIR dialects like StableHLO and Torch 
+    which correspond to their internal graph formats. The issue is that these high-level dialects have different semantics
+    specific to their frameworks. There are also other high-level dialects like <a href="https://mlir.llvm.org/docs/Dialects/TOSA/">TOSA</a>, but they also have their 
+    individual semantics, which makes it hard to work on common optimization infrastructure every framework needs. <p></p>The advantage of 
+    using Linalg is that it provides a common representation for tensor operations through which I call a generalized <i>"compiler IR"</i>. 
+    By being at tensor value semantics, where each new op materializes a new tensor, we can perform most of the optimization we need like kernel fusion, tiling, and data blocking.
+<h3>Tiling + Kernel Fusion.</h3>
+Tiling refers to dividing computations into smaller, manageable blocks that can be processed in parallel. This technique enhances performance by optimizing data locality and parallelism across dimensions. Kernel fusion's main idea is to optimize operations involving tensors, such as contractions and element-wise operations, to enhance computational efficiency.
+
+            Matrix multiplication \( C = A \times B \) involves a contraction over the shared dimension \( k \):
+            \[
+            C_{ij} = \sum_{k} A_{ik} \cdot B_{kj}
+            \]
+            
+            Element-wise operations are applied individually to each element of a tensor. For matrices, element-wise addition might be represented as:
+            \[
+            E_{ij} = C_{ij} + D_{ij}
+            \]
+            
+            The key to optimization is <i>fusing contraction and element-wise operations</i>. Instead of performing these operations separately, combining them into a single pass can reduce the number of memory accesses and improve performance:
+            \[
+            E = (A \times B) + D
+            \]
+            Below is some code demonstrating how to fuse operations along the M and N parallel loops. Here, M and N represent the dimensions handling tile and fuse passes. These loops become two parallel loops, MB and NB, due to the absence of loop-carried dependencies between tile operations. Below is code showing this: <p></p>
+            <div class="code-box">
+                <pre><code><b>// Comments are bolded</b>
+<b>// Convert tile-wise operations</b>
+for (MB, NB) {
+    for (KB) {
+        C[MB][NB][mb][nb] += A[MB][KB][mb][kb] * B[NB][KB][kb][nb];
+    }
+    C[MB][NB][mb][nb] = add(C[MB][NB][mb][nb], bias[mb][nb]);
+    C[MB][NB][mb][nb] = max(C[MB][NB][mb][nb], 0);
+}
+            
+<b>// Into a parallel BRGEMM "tile" operation + element-wise tail operations</b>
+parallel(MB, NB) {
+    <b>// Extract {A, B, C} x [MB][NB][KB] as appropriate</b>
+    <b>// Note: This is a batch-reduce GEMM into a "tile"</b>
+    C[mb][nb] += A[KB][mb][kb] * B[KB][kb][nb];
+    C[mb][nb] = add(C[mb][nb], bias[mb][nb]);
+    C[mb][nb] = max(C[mb][nb], 0);
+    <b>// Insert into C[MB][NB]</b>
+}
+                </code></pre>
+            </div>
+            </li><br>
+<h3>Data blocking.</h3> 
+Sometimes called packing, data blocking is a pretty well known transformation in high-performance libraries 
+        that copies a non-contiguous block of data to a contiguous block in memory to reduce the # of <a href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">TLB</a> entries requires 
+    to access each page. When data is copied, data blocking rearranges block elements to decrease the stride between 
+consecutive accesses which improves spatial locality and cache behavior. By bringing this into our compiler we can 
+propagate the data layout through the IR instead of paying the price for every execution. 
+    This set of dialects with tiled and fused operations can then be bufferized by a <a href="https://mlir.llvm.org/docs/Bufferization/"><i>one shot bufferization pass</i></a>, cleaned, 
+    and lowered to further low level dialects where library/hardware specific passes can operate on already memory-friendly shape. And voila, 
+    we now have a common representation that I call Tensor-Linalg that simplifies the optimization process across tons of frameworks all the way down to the hardware. 
+    </p>
+    </p>
+<h3>XSMM.</h3>
+    Before you get on your way, I'd like to introduce XSMM which is a dialect that maps the behavior of the <a href="https://github.com/libxsmm/libxsmm">libxsmm</a>.
+    The libsxmm library is a JIT-ing library for sparse and dense matrix operations for deep learning that is split into two stages: 
+    <ol>
+        <li><b>Dispatch:</b> The dispatch stage receives the shapes of the buffer, leading dimensions, broadcast, and fusion flags + compiles the microkernel in memory,
+        returning a pointer to into its implementation. The second time a dispatch function is called, it just returns a cached pointer to the same implementation</li><br/>
+        <li><b>Invoke</b>: The invoke stage calls that function pointer with the actual tensor data (usually a tile into a larger buffer with appropriate strides), which computes 
+            the operation, writing the result to the output buffer.
+        </li>
+    </ol>
+    XSMM exposes only five operations:
+    <ol>
+        <li><b>unary:</b> These are element-wise unary operations like ReLU, but also broadcasts, transposes, and reductions.</li><br/>
+        <li><b>binary:</b> These are element-wise binary operations like add or multiply.</li><br/>
+        <li><b>gemm:</b> This is  General Matrix Multiplications mirroring the <a href="https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms">BLAS</a> interface.</b></li><br/>
+        <li><b>brgemm:</b> This is a more powerful abstraction that carries an extra reduction dimension on the input operands, allowing reducing tiles of A and B in the same C tile. For example you have matrix multiplication where matrices A and B are being multiplied to produce matrix C. Traditional matrix multiplication might compute each element of C individually. With brgemm, the computation can be optimized by breaking matrices A and B into smaller tiles and performing the multiplication and reduction operations within those tiles, resulting in more efficient use of computational resources. </li><br/>
+        <li><b>fused_brgemm:</b> This allows allows the BRGEMM operation to be combined or "fused" with element-wise operations that occur before (prologue) and after (epilogue) the main BRGEMM computation. This fusion process uses register fusion to manage intermediate results more efficiently, leading to potential improvements in performance and reduced overhead./li>
+    </ol>
+    What's so cool about XSMM is that it shows the power of a library-specific compiler optimization like <b>fused_brgemm</b> which 
+    adds the following arbitrary binary and unary operations to the BRGEMM, including broadcast semantics. Below is an XSMM pass that fuses 
+    multiple XSMM calls into a fused call to improve register and memory usage:<p></p>
+    <div class="code-box">
+<pre><code><b>// Comments are bolded</b>
+<b>// Original sequence of XSMM calls</b>
+%3 = xsmm.unary.dispatch zero [...] flags = (none)
+%4 = xsmm.brgemm.dispatch [none] flags = (none)
+%5 = xsmm.binary.dispatch add [...] flags = (bcast_col_in0)
+%6 = xsmm.unary.dispatch relu [...] flags = (none)
+scf.parallel (MB, NB) {
+    %subview_A = memref.subview ... <b>// Subview into matrix A</b>
+    %subview_B = memref.subview ... <b>// Subview into matrix B</b>
+    %subview_C = memref.subview ... <b>// Subview into matrix C</b>
+    
+    <b>// Initialize C[MB][NB] with zeros</b>
+    xsmm.zero(..., %3, %subview_C)
+    
+    <b>// Perform BRGEMM: C[MB][NB] = BRGEMM(A[MB][NB], B[MB][NB], C[MB][NB])</b>
+    xsmm.brgemm(data_type = f32, %4, %subview_A, %subview_B, %subview_C, %c0)
+    
+    <b>// Add bias: C[MB][NB] = ADD(broadcast(Bias[NB]), C[MB][NB])</b>
+    xsmm.binary add(..., %5, %BIAS, %subview_C, %subview_C)
+    
+    <b>// Apply ReLU activation: C[MB][NB] = ReLU(C[MB][NB])</b>
+    xsmm.unary relu(..., %6, %subview_C, %subview_C)
+}
+
+<b>// Optimized version using fused_brgemm</b>
+%3 = xsmm.fused_brgemm.dispatch [...][add,relu] flags = (beta_0)
+    binary_flags = (bcast_col_in0) unary_flags = (none)
+scf.parallel(MB, NB) {
+    %subview_A = memref.subview ... <b>// Subview into matrix A</b>
+    %subview_B = memref.subview ... <b>// Subview into matrix B</b>
+    %subview_C = memref.subview ... <b>// Subview into matrix C</b>
+    
+    <b>
+// Fused operation combining initialization, BRGEMM, bias addition, and ReLU activation
+// 1. C[MB][NB] = { 0.0 }                                   (Initialization)
+// 2. C[MB][NB] = BRGEMM(A[MB][NB], B[MB][NB], C[MB][NB])   (MatMul)
+// 3. C[MB][NB] = ADD(broadcast(Bias[NB]), C[MB][NB])       (Bias addition)
+// 4. C[MB][NB] = ReLU(C[MB][NB])                           (ReLU activation)</b>
+    xsmm.fused_brgemm(..., %3, %subview_A, %subview_B, %subview_C, %BIAS %c4)
+}</code>
+        </pre>
+    </div>
+<h3>Closing thoughts.</h3>
+There are a lot of people working on building compilers in the open for ML like <a href="https://iree.dev/">IREE</a> so check it out if you're interested, but I recommend going from scratch always.
+You'll learn existing best practices, e.g. writing and maintaining an IR spec, building an IR verifier etc. <p></p>
+Below is a sample compilation strategy that you can follow using what you've hopefully learned from this post to be able to make your own AI compiler: 
+<ol>
+    <li>An ingress layer, that extracts MLIR from existing frameworks into our common representation <i>compiler IR</i>.</li><br/>
+    <li>high-level hardware agnostic Linalg pipeline.</li><br/>
+    <li>low-level lowering dialect.</li><br/>
+    <li>lowering to hardware dialects (XSMM)</li><br/>
+    <li>An execution strategy for the generated code, including runtime libraries and wrappers.</li>
+</ol>
+Good luck. <p></p>
+</p> I personally believe that the only way to maximize performance is hardware / software co-design, starting with the compiler.
+A testament to this that I'm pretty inspired by is <a href="https://groq.com/meet-groq-compiler-solutions-for-a-symbiotic-software-hardware-ecosystem/">Groq</a>. By 
+working on a compiler first before taping out any chips, they were able to create flexibility for workloads. Today they're known for LLM inference speeds 
+but back in their beginnings, they approached my former employer trying to sell us HFT chips! This sort of flexibility with likely the same compiler 
+at its core is why I believe they were able to capitalize so quickly on changing their workload to AI to give crazy demos like <a href="https://www.youtube.com/watch?v=jag7NjaROck">this</a>. 
+Groq now has a close competitor, <a href ="https://cerebras.ai">Cerebras</a> who also have their own graph compiler! Oh, and both companies for those who're unaware 
+are valued in the billions.<p></p>So go make a compiler and maybe you'll convince some smart investors to back you in building the future 
+of high-performance systems.</p>
+    <i>Always laugh at the competition.</i></p>
+    <b>- hyena</b>
+    </html>
