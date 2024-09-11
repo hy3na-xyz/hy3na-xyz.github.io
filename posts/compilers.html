@@ -175,8 +175,9 @@ return %2
     using Linalg is that it provides a common representation for tensor operations through which I call a generalized <i>"compiler IR"</i>. 
     By being at tensor value semantics, where each new op materializes a new tensor, we can perform most of the optimization we need like kernel fusion, tiling, and data blocking.
 <h3>Tiling + Kernel Fusion.</h3>
-Tiling refers to dividing computations into smaller, manageable blocks that can be processed in parallel. This technique enhances performance by optimizing data locality and parallelism across dimensions. Kernel fusion's main idea is to optimize operations involving tensors, such as contractions and element-wise operations, to enhance computational efficiency.
-
+Tiling is a technique that splits large computations into smaller blocks, or tiles, to make processing more efficient. CPUs can compute much faster than they can fetch data from memory, so tiling ensures that the data being worked on fits into the faster CPU cache. By doing this, it reduces the need to repeatedly access slower memory and reuses the data already in the cache, speeding up the overall computation. This technique enhances performance by optimizing data locality and parallelism across dimensions.
+When dealing with large datasets or matrices, we often perform multiple operations in sequence. This is where kernel fusion comes into play. Kernel fusion's main idea is to optimize operations involving tensors, such as contractions and element-wise operations, by combining multiple operations into a single computational kernel. This approach enhances computational efficiency by reducing memory accesses and leveraging data locality.
+Let's look at how these concepts apply to matrix operations:<p></p>
             Matrix multiplication \( C = A \times B \) involves a contraction over the shared dimension \( k \):
             \[
             C_{ij} = \sum_{k} A_{ik} \cdot B_{kj}
