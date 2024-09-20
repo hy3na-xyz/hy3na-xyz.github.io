@@ -61,15 +61,15 @@
     < <a href= "../index.html" >Return to home</a> 
     <p></p>
     <p></p>
-    <h1>Towards High-Performance AI Compilers.</h1>
+    <h2>Towards High-Performance AI Compilers.</h2>
     <hr />
     <p></p>
-    <h2>Problem Statement.</h2>
+    <h3>Problem Statement.</h3>
     <p>Making interpreted languages run fast for specialized hardware like ASICS is difficult.<p>
     <p></p>
-    <h2>Solution.</h2>
+    <h3>Solution.</h3>
     </p><p>A killer compiler. Let's take a look at this paper in particular from <a href = "https://arxiv.org/pdf/2404.15204">Intel</a>.</p><p></p>
-    <h2>Multi-Level Intermediate Representation (MLIR). </h2>
+    <h3>Multi-Level Intermediate Representation (MLIR). </h3>
     <p> <a href= "https://arxiv.org/pdf/2002.11054">MLIR</a> is intended to be a hybrid <a href="https://en.wikipedia.org/wiki/Intermediate_representation">IR</a> that allows 
         us to develop reusable and extensible compiler infrastructure. It came from the realization that 
         modern ML frameworks like PyTorch & TensorFlow are composed of a lot of different compilers, graph technologies,
@@ -217,7 +217,7 @@ parallel(MB, NB) {
                 </code></pre>
             </div>
             </li><br>
-<h2>Data Blocking.</h2> 
+<h3>Data Blocking.</h3> 
 Sometimes called packing, data blocking is a pretty well known transformation in high-performance libraries 
         that copies a non-contiguous block of data to a contiguous block in memory to reduce the # of <a href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">TLB</a> entries requires 
     to access each page. When data is copied, data blocking rearranges block elements to decrease the stride between 
@@ -293,7 +293,7 @@ scf.parallel(MB, NB) {
 }</code>
         </pre>
     </div><p></p>
-<h2>Closing Thoughts.</h2>
+<h3>Closing Thoughts.</h3>
 There are a lot of people working on building compilers in the open for ML like <a href="https://iree.dev/">IREE</a> so check it out if you're interested, but I recommend going from scratch always.
 You'll learn existing best practices, e.g. writing and maintaining an IR spec, building an IR verifier etc. <p></p>
 Below is a sample compilation strategy that you can follow using what you've hopefully learned from this post to be able to make your own AI compiler: 

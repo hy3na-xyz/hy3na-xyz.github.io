@@ -75,11 +75,10 @@
     < <a href= "../index.html" >Return to home</a> 
     <p></p>
     <p></p>
-    <h1>A Walk Down Polyhedral Lane.</h1>
+    <h2>A Walk Down Polyhedral Lane.</h2>
     <hr />
     <p></p>
-    <h2>Combinatorial Optimization.</h2>
-    <h3>Overview.</h3>
+    <h3>Combinatorial Optimization.</h3>
     <a href="https://en.wikipedia.org/wiki/Combinatorial_optimization">Combinatorial optimization</a> seeks the optimal object from a finite collection of objects. This collection typically has a representation such as a graph or tree. Since the number of objects grows exponentially with the size of the representation, such as in the case of <a href="https://math.libretexts.org/Bookshelves/Applied_Mathematics/Math_in_Society_(Lippman)/06%3A_Graph_Theory/6.06%3A_Hamiltonian_Circuits_and_the_Traveling_Salesman_Problem">Hamiltonian circuits</a>, scanning all objects one by one to select the best solution is infeasible at scale. Thus, efficient search methods are necessary.
 
 <p></p>
@@ -253,8 +252,7 @@ do in the "real world" with polyhedral combinatorics. A brief list includes:
 </ul>
 Since my last <a href="https://hy3na.com/posts/compilers.html">post</a> was on compilers, I'll dive into 
 scheduling for this post. <p></p>
-<h2>Designing A Polyhedral Scheduler.</h2>
-<h3>Overview.</h3>
+<h3>Designing A Polyhedral Scheduler.</h3>
 Polyhedral optimization of kernels can be thought of in three phases:
 <ol>
     <li>Input code and loop nests are represented as polyhedra.</li>
@@ -447,7 +445,7 @@ where $\vec{u}$ and $w$ are the cost functions to minimize.
 In essence, proximity accurately represents a useful transformation and indirectly 
 favors the first dimensions to be parallel, with a dependency distance of $0$.</li>
 </ol><p></p>
-<h2>Wrapping Up.</h2>
+<h3>Wrapping Up.</h3>
 
 Now you have all the pieces to go ahead and start building your own polyhedral scheduler and 
 add lots of optimizations that I didn't cover in the post like <a href = "https://en.wikipedia.org/wiki/Loop_fission_and_fusion">loop fusion</a>
