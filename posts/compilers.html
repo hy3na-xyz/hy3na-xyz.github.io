@@ -61,15 +61,15 @@
     < <a href= "../index.html" >Return to home</a> 
     <p></p>
     <p></p>
-    <h2>Towards high-performance AI compilers.</h2>
+    <h1>Towards High-Performance AI Compilers.</h1>
     <hr />
     <p></p>
-    <h3>Problem statement.</h3>
+    <h2>Problem Statement.</h2>
     <p>Making interpreted languages run fast for specialized hardware like ASICS is difficult.<p>
     <p></p>
-    <h3>Solution.</h3>
+    <h2>Solution.</h2>
     </p><p>A killer compiler. Let's take a look at this paper in particular from <a href = "https://arxiv.org/pdf/2404.15204">Intel</a>.</p><p></p>
-    <h3>Multi-Level Intermediate Representation (MLIR). </h3>
+    <h2>Multi-Level Intermediate Representation (MLIR). </h2>
     <p> <a href= "https://arxiv.org/pdf/2002.11054">MLIR</a> is intended to be a hybrid <a href="https://en.wikipedia.org/wiki/Intermediate_representation">IR</a> that allows 
         us to develop reusable and extensible compiler infrastructure. It came from the realization that 
         modern ML frameworks like PyTorch & TensorFlow are composed of a lot of different compilers, graph technologies,
@@ -93,8 +93,8 @@
             <a href="https://mlir.llvm.org/docs/Dialects/TensorOps/">Tensor</a> dialect for tensor creation. Below is 
         an example of a simple multi-layer perceptron (MLP) layer represented in Linalg + Tensor generic operations: <p></p>
         <div class="code-box">
-            <pre><code>
-<b>// Comments are bolded.</b>
+            <pre><code><b>// Comments are bolded.</b>
+
 <b>// Affine maps M,K * K,N -> M,N</b>
 # map-mk = affine_map<(d0, d1, d2) -> (d0, d2)>
 # map-kn = affine_map<(d0, d1, d2) -> (d2, d1)>
@@ -174,7 +174,7 @@ return %2
     individual semantics, which makes it hard to work on common optimization infrastructure every framework needs. <p></p>The advantage of 
     using Linalg is that it provides a common representation for tensor operations through which I call a generalized <i>"compiler IR"</i>. 
     By being at tensor value semantics, where each new op materializes a new tensor, we can perform most of the optimization we need like kernel fusion, tiling, and data blocking.
-<h3>Tiling + Kernel Fusion.</h3>
+<h2>Tiling + Kernel Fusion.</h2>
 Tiling is a technique that splits large computations into smaller blocks, or tiles, to make processing more efficient. CPUs can compute much faster than they can fetch data from memory, so tiling ensures that the data being worked on fits into the faster CPU cache. By doing this, it reduces the need to repeatedly access slower memory and reuses the data already in the cache, speeding up the overall computation. This technique enhances performance by optimizing data locality and parallelism across dimensions.
 When dealing with large datasets or matrices, we often perform multiple operations in sequence. This is where kernel fusion comes into play. Kernel fusion's main idea is to optimize operations involving tensors, such as contractions and element-wise operations, by combining multiple operations into a single computational kernel, reducing memory accesses via leveraging data locality.
 Let's look at how these concepts apply to matrix operations:<p></p>
@@ -195,6 +195,7 @@ Let's look at how these concepts apply to matrix operations:<p></p>
             Below is some code demonstrating how to fuse operations along the M and N parallel loops. Here, M and N represent the dimensions handling tile and fuse passes. These loops become two parallel loops, MB and NB, due to the absence of loop-carried dependencies between tile operations. Below is code showing this: <p></p>
             <div class="code-box">
                 <pre><code><b>// Comments are bolded</b>
+
 <b>// Convert tile-wise operations</b>
 for (MB, NB) {
     for (KB) {
@@ -216,7 +217,7 @@ parallel(MB, NB) {
                 </code></pre>
             </div>
             </li><br>
-<h3>Data blocking.</h3> 
+<h2>Data Blocking.</h2> 
 Sometimes called packing, data blocking is a pretty well known transformation in high-performance libraries 
         that copies a non-contiguous block of data to a contiguous block in memory to reduce the # of <a href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">TLB</a> entries requires 
     to access each page. When data is copied, data blocking rearranges block elements to decrease the stride between 
@@ -227,7 +228,7 @@ propagate the data layout through the IR instead of paying the price for every e
     we now have a common representation that we call Tensor-Linalg that simplifies the optimization process across tons of frameworks all the way down to the hardware. 
     </p>
     </p>
-<h3>XSMM.</h3>
+<h2>XSMM.</h2>
     Before you get on your way, I'd like to introduce XSMM which is a dialect that maps the behavior of the <a href="https://github.com/libxsmm/libxsmm">libxsmm</a>.
     The libsxmm library is a JIT-ing library for sparse and dense matrix operations for deep learning that is split into two stages: 
     <ol>
@@ -250,6 +251,7 @@ propagate the data layout through the IR instead of paying the price for every e
     multiple XSMM calls into a fused call to improve register and memory usage:<p></p>
     <div class="code-box">
 <pre><code><b>// Comments are bolded</b>
+
 <b>// Original sequence of XSMM calls</b>
 %3 = xsmm.unary.dispatch zero [...] flags = (none)
 %4 = xsmm.brgemm.dispatch [none] flags = (none)
@@ -290,8 +292,8 @@ scf.parallel(MB, NB) {
     xsmm.fused_brgemm(..., %3, %subview_A, %subview_B, %subview_C, %BIAS %c4)
 }</code>
         </pre>
-    </div>
-<h3>Closing thoughts.</h3>
+    </div><p></p>
+<h2>Closing Thoughts.</h2>
 There are a lot of people working on building compilers in the open for ML like <a href="https://iree.dev/">IREE</a> so check it out if you're interested, but I recommend going from scratch always.
 You'll learn existing best practices, e.g. writing and maintaining an IR spec, building an IR verifier etc. <p></p>
 Below is a sample compilation strategy that you can follow using what you've hopefully learned from this post to be able to make your own AI compiler: 

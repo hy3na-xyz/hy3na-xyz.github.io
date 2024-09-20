@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Always laugh at the competition." />
+    <title>A walk down polyhedral lane.</title>
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          },
+          macros: {
+            theorem: ["\\textbf{Theorem:} \\textit{#1}", 1],
+            proof: ["\\textbf{Proof:} \\textit{#1}", 1]
+          }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    
+    <style>
+        body {
+            max-width: 700px;  
+            margin: 5vh auto; 
+            padding: 0 20px;   
+            font-family: monospace;
+            line-height: 1.4em;
+            background-color: rgb(237, 237, 237);
+            color: rgb(0, 0, 0);
+        }
+        .code-box {
+            max-width: 100%;          
+            height: auto;             
+            overflow-x: auto;         
+            background-color: rgb(217, 217, 217);
+            border: 1px solid #000000;
+            padding: 10px;            
+            box-sizing: border-box;   
+            font-family: monospace;   
+        }
+
+        .code-box pre, .code-box code {
+            margin: 0;               
+            padding: 0;              
+            white-space: pre-wrap;   
+            word-wrap: break-word;   
+        }
+
+        body a { color: rgb(0, 0, 0); }
+        body .thread { color: rgb(0, 0, 0); text-decoration: none; }
+        body .thread:hover { text-decoration: underline; }
+        body hr { border: 2.5px dotted rgb(0, 0, 0); }
+        body p:not(:nth-child(2)) { margin-top: 30px; }
+        body p:nth-child(2) { margin-top: 0px; }
+        body h3:first-child { margin-bottom: 5px; font-size: 20px; }
+        body h4 { margin-top: 30px; }
+        body h5 { margin: 0px; font-weight: 100; }
+        @media only screen and (max-width: 650px) { 
+            body { width: 90vw !important; } 
+        }
+        body {
+            user-select: none; 
+        }
+
+        a {
+            user-select: text; 
+        }
+        .MathJax { font-size: 1em !important; }
+    </style>
+</head>
+<body>
+    <main>
+    < <a href= "../index.html" >Return to home</a> 
+    <p></p>
+    <p></p>
+    <h1>A Walk Down Polyhedral Lane.</h1>
+    <hr />
+    <p></p>
+    <h2>Combinatorial Optimization.</h2>
+    <h3>Overview.</h3>
+    <a href="https://en.wikipedia.org/wiki/Combinatorial_optimization">Combinatorial optimization</a> seeks the optimal object from a finite collection of objects. This collection typically has a representation such as a graph or tree. Since the number of objects grows exponentially with the size of the representation, such as in the case of <a href="https://math.libretexts.org/Bookshelves/Applied_Mathematics/Math_in_Society_(Lippman)/06%3A_Graph_Theory/6.06%3A_Hamiltonian_Circuits_and_the_Traveling_Salesman_Problem">Hamiltonian circuits</a>, scanning all objects one by one to select the best solution is infeasible at scale. Thus, efficient search methods are necessary.
+
+<p></p>
+    In the 1960s, <a href="https://en.wikipedia.org/wiki/Jack_Edmonds">Jack Edmonds</a> advocated for defining an efficient method as one whose running time is bounded by a polynomial in the size of its representation. Edmonds developed polynomial-time algorithms like the <a href="https://en.wikipedia.org/wiki/Blossom_algorithm">Blossom algorithm</a> for the matching problem. Today, problems solvable in polynomial time are classified as belonging to the complexity class <a href="https://en.wikipedia.org/wiki/P_(complexity)">P</a>.
+
+In the 1970s, Cook and Karp identified combinatorial optimization problems, such as the <a href="https://en.wikipedia.org/wiki/Travelling_salesman_problem">Travelling Salesman Problem</a>, that belong to the complexity class <a href="https://en.wikipedia.org/wiki/NP_(complexity)">NP</a>. 
+
+By definition, any problem in NP must be reducible to every <a href="https://en.wikipedia.org/wiki/NP-completeness">NP-complete</a> problem. All NP-complete problems are equivalent in that the polynomial-time solvability of one implies the same for all.
+
+So far, most combinatorial optimization problems have been classified either as polynomial-time solvable or NP-complete, but none have been proven to be both. This raises the fundamental question: are these two properties disjoint or do they coincide? In other words: \[P\neq NP\quad\text{or}\quad P=NP\]
+
+I will focus on three key aspects of combinatorial optimization problems that are in class P:
+<ol> <li>Polynomial-time solvability.</li> <li>Polyhedral representations.</li> <li>Min-Max relations.</li> </ol> Edmonds showed that these aspects are closely related. In many cases, a polynomial-time algorithm yields a representation formed of inequalities of an associated <a href="https://en.wikipedia.org/wiki/Polyhedron">polyhedron</a>. Conversely, an appropriate representation of a polyhedron implies the polynomial-time solvability of an associated optimization problem via <a href="https://en.wikipedia.org/wiki/Linear_programming">linear programming</a> techniques. The <a href="https://en.wikipedia.org/wiki/Dual_linear_program">duality theorem</a> of linear programming 
+
+allows polyhedral representations to yield <a href="https://ir.cwi.nl/pub/10149/10149D.pdf">Min-Max</a> relations. 
+
+This field of discrete math is called <b>polyhedral combinatorics</b>. 
+<p></p>
+<h3>
+Maximum-Size Matching.</h3>
+Let $G  = (V, E)$ be an undirected graph and let $w : E\to \mathbb{R}_{+}$. 
+For any subset $F$ of $E$, let \[w(F) := \sum_{e\in F}w(e)\]
+We call $w(F)$ the <i>weight</i> of $F$. Now suppose you want to find a 
+<i>matching</i> $M$ where we define matching as a set of disjoint edges in $G$
+such that the weight $w(M)$ is maximized. This in notation is 
+\[\max\{w(M)\mid M\text{ matching in } G\}\]
+This has equivalent formulation: for any matching $M$, denote the 
+indicator vector  of $M$ in $\mathbb{R}^{E}$ by $\phi^M$, that is 
+\[\phi^M(e) := \begin{cases}
+1 \quad \text{if }e\in M,\\
+0 \quad \text{if }e \notin M
+\end{cases}\quad \text{ for } e\in E\]
+Given $w$ is a vector in $\mathbb{R}^{E}$, we have 
+$w(M) = w^\intercal \phi^M$ letting us rewrite our maximization as 
+\[\max\left\{w^\intercal\phi^M \mid M\text{ matching in } G\right\}\] 
+This is equivalent to maximizing the linear function $w^\intercal x$ over a finite 
+set of vectors $\implies$ the optimal value does not change if we 
+maximize it over the <i>convex hull</i> of these vectors: 
+\[\max\left\{w^\intercal \mid x \in\text{conv.hull}\left\{\phi^M \mid M\text{ matching in } G\right\} \right\}\]
+The set \[\text{conv.hull} \{\phi^M\mid M\text{ matching in } G\}\]
+is a <a href= "https://en.wikipedia.org/wiki/Polytope">polytope</a> in $\mathbb{R}^E$, called the <i>matching polytope </i> of $G$. 
+There are two equivalent ways to define a polytope
+<ol>
+    <li><b>V-representation:</b> defines a polytope as a convex hull of a finite set of vertices,
+    where the finite set must contain the set of <a href = "https://en.wikipedia.org/wiki/Extreme_point">extreme points</a> of the polytope.</li><br/>
+    <li><b>H-representation:</b> defines a polytope as the bounded intersection of a finite number 
+        of <a href="https://en.wikipedia.org/wiki/Closed_half-space">half-spaces</a>, which is the solution to a system of linear inequalities. These half-spaces 
+        are described by a matrix $A$ and a vector $b$ in the form: 
+        \[H = \{x \in\mathbb{R}^n : Ax\leq b\}\]
+    </b></li>
+</ol>
+Because of the H-representation we can say that 
+ \[\text{conv.hull} \{\phi^M\mid M\text{ matching in } G\}\implies \{x\in\mathbb{R}^E\mid x\geq 0, Ax\leq b\}\]
+which allows us to say 
+
+\[\max\left\{w^\intercal \mid x \in\text{conv.hull}\left\{\phi^M \mid M\text{ matching in } G\right\} \right\} = \max\left\{w^\intercal x\mid x\geq 0, Ax\leq b\right\}\] 
+In this way we were able to translate our original problem 
+$\max\left\{w(M)\mid M\text{ matching in } G\right\}$
+as a <i>linear programming</i> problem that we can apply relevant techniques to solve.
+The main issue is we need to somehow find the matrix $A$ and vector $b$ which we know exist.</p>
+Consider $G$ to be <a href="https://en.wikipedia.org/wiki/Bipartite_graph">bipartite</a>,
+then we know that the matching polytope of $G$ is equivalent to the set of all vectors 
+$x$ satisifying 
+\[\begin{align*}
+&x(e)\geq 0 &\text{for }e \in E\\
+&\sum_{e \ni v}x(e)\leq 1 &\text{for }v\in V
+\end{align*}\]
+Note that the sum ranges over all edges $e$ containing $v$. Thus for 
+$A$ we can take the $V\times E$ indicator matrix of $G$ and for $b$ the 
+all-one vector $\textbf{1}$ in $\mathbb{R}^V$. We can show that the matching polytope for bipartite graphs is completely determined 
+by the above inequalities in the following steps:
+<ol>
+    <li><b>Containment Of The Matching Polytope:</b> 
+        The matching polytope is defined by all characteristic vectors \( \phi^M \) of matchings \( M \) in the bipartite graph \( G \). Since each matching satisfies the inequalities defined above, it follows that the matching polytope is contained within the polytope defined by these inequalities.
+    </li><br/>
+    <li><b>Total Unimodularity:</b> 
+        For a bipartite graph \( G \), the constraint matrix \( A \) associated with the inequalities is <i>totally unimodular</i>. This property means that every square submatrix of \( A \) has a determinant that is either \( 0 \), \( 1 \), or \( -1 \). This ensures that any linear combination of the rows of \( A \) that produces integer solutions will also have integer coefficients.
+    </li><br/>
+    <li><b>Integer Vertices:</b> 
+        Due to the total unimodularity of the matrix \( A \), any feasible region defined by the inequalities will have vertices that are integer vectors. Specifically, this means that the solutions to the linear program formed by these inequalities will lie in \( \mathbb{Z}^E \), where \( E \) represents the edges of the bipartite graph.
+    </li><br/>
+    <li><b>Characterization Of Integer Solutions:</b> 
+        Given that every integer vector satisfying the inequalities must be a vertex of the polytope and also corresponds to some matching \( M \) in the graph, we can say that each integer solution is equal to \( \phi^M \). Thus, all integer vectors satisfying the inequalities are characterized by the matchings in the bipartite graph \( G \).
+    </li>
+</ol>
+We can now apply linear programming techniques to handle our original problem, 
+specifically, we can find a maximum-weight matching in a bipartite graph 
+in polynomial time, with any polynomial-time linear programming algorithm.
+The duality theorem of linear programming also gives us 
+\[
+\begin{align*}
+\max\left\{w(M)\mid M\text{ matching in }G\right\} &= \max\left\{w^\intercal x \mid x \geq \textbf{0},Ax\leq \textbf{1}\right\}\\
+&= \min\left\{y^\intercal\textbf{1}\mid y\geq \textbf{0}, y^\intercal A\geq w^\intercal\right\}
+\end{align*}\]
+If we take for $w$ the all-one vector $\textbf{1}$ in $\mathbb{R}^E$, we can derive 
+<a href= https://en.wikipedia.org/wiki/K%C5%91nig%27s_theorem_(graph_theory)>Kőnig's theorem</a> 
+which states: the maximum size of a matching in a bipartite graph is equal to the minimum size of a vertex cover (a set of vertices intersecting each edge).
+We can see this in action directly. First look at the expression 
+\[\max\left\{w(M)\mid M\text{ matching in }G\right\}\]
+and notice it is indeed equal to the maximum size of a matching.
+Next, the minimum can be seen via the integer vector $y$ (from the total unimodularity of $A$).
+This $y\in\mathbb{R}^V$ is a $0$, $1$ vector $\implies$ it is the indicator 
+vector $\phi^U$ for some subset $U\subseteq V$. Then, 
+$y^\intercal A \geq \textbf{1$^\intercal$}$ implies 
+$U$ is a vertex cover. Therefore the rightmost expression is equal to the 
+minimum size of a vertex cover. 
+<p>
+    Kőnig's matching theorem is an example of a <i>Min-Max formula</i>
+that can be derived as we've shown from a polyhedral representation.
+We can also go the other way and go from a Min-Max formula in a weighted form 
+that yields a polyhedral representation. This representation together with 
+linear programming duality gives a definitive proof of optimality of a matching $M$.
+So if you ever need to convince someone that a certain matching $M$ has maximum size, it is 
+sufficient and possible to show a vertex cover of size $|M|$. This is what yields a 
+<i>good  characterization</i> for the maximum-size matching problem in bipartite graphs.
+</p> 
+
+<h3>What About Nonbipartite Graphs?</h3>
+If $G$ is <i>nonbipartite</i>, the matching polytope is not defined directly by the inequalities 
+\[\begin{align*}
+&x(e)\geq 0 &\text{for }e \in E\\
+&\sum_{e \ni v}x(e)\leq 1 &\text{for }v\in V
+\end{align*}\]
+
+This is because if \( C \) is an <a href="https://en.wikipedia.org/wiki/Cycle_graph">odd circuit</a> in the graph \( G \), we can define a vector \( x \in \mathbb{R}^E \) such that:
+<ol>
+    <li>\( x(e) = \frac{1}{2} \) for each edge \( e \) in the circuit \( C \).
+    </li><br/>
+    <li>\( x(e) = 0 \) for edges not in \( C \).</li>
+</ol>
+This vector satisfies the inequalities for matchings in \( G \), but it is not a valid matching vector because it assigns non-integer values to edges.
+
+To accurately describe the matching polytope of any graph, we need to add specific inequalities to the existing conditions:
+
+<ol>
+    <li><b>Non-Negativity:</b> \[ x(e) \geq 0,\quad \forall  e \in E \]</li><br/>
+    <li><b>Vertex Degree Constraints:</b> \[ \sum_{e \ni v} x(e) \leq 1,\quad \forall v \in V \]</li>
+</ol>
+In addition to these, we need the following constraint for every <i>odd-sized subset</i> \( U \) of vertices \( V \):
+\[
+\sum_{e \subseteq U} x(e) \leq \left\lfloor \frac{1}{2} |U| \right\rfloor
+\]
+
+This means that the total weight assigned to the edges connecting the vertices in \( U \) must not exceed half the number of vertices in \( U \), rounded down.
+
+This extra condition ensures that any indicator vector \( \phi^M \) of a matching \( M \) satisfies it, confirming that the matching polytope of \( G \) is fully contained within the polytope defined by this combination of inequalities.
+<p> One can derive from this representation
+    the polynomial-time solvability of the weighted matching problem, with the <a href="https://en.wikipedia.org/wiki/Ellipsoid_method">ellipsoid method</a>. 
+    However it suffices to have a polynomial-time algorithm that simply answers the following question:
+    \[\text{given } x\in\mathbb{R}^E\text{, does $x$ belong to the matching polytope of $G$?}\]
+We know that an algorithm does exist because of the inequalities can be checked in time 
+bounded by a polynomial in $|V|, |E|$, and the size of $x$. The method should obviously however 
+avoid testing all the inequalities of \(\sum_{e \subseteq U} x(e) \leq \left\lfloor \frac{1}{2} |U| \right\rfloor
+\) one by  one. This is one of the main motivations for 
+studying polyhedral methods in that although the ellipsoid proves 
+polynomial-time solvability, it does not yield a direct method and
+rather incentivizes a search for a practically efficient algorithm.
+The polyhedral method can be helpful in this for example by imitating the simplex 
+method with a constraint generation technique, or by a primal-dual approach.  
+<p>
+<h3>Why Should You Care?</h3>
+Note that I've only barely scratched the surface of the rigor for polyhedral optimization and it's already quite complex. For those lacking <a href="https://en.wikipedia.org/wiki/Mathematical_maturity">mathematical maturity</a>
+you might've just skimmed by and likely just want to see what you can 
+do in the "real world" with polyhedral combinatorics. A brief list includes: 
+<ul>
+    <li>Compilers.</li>
+    <li>Schedulers.</li>
+    <li>Network design.</li>
+    <li>Supply chain optimization.</li>
+    
+</ul>
+Since my last <a href="https://hy3na.com/posts/compilers.html">post</a> was on compilers, I'll dive into 
+scheduling for this post. <p></p>
+<h2>Designing A Polyhedral Scheduler.</h2>
+<h3>Overview.</h3>
+Polyhedral optimization of kernels can be thought of in three phases:
+<ol>
+    <li>Input code and loop nests are represented as polyhedra.</li>
+    <li>Algebraic transformations are applied to them.</li>
+    <li>A new optimized code that scans the transformed polyhedra is generated.</li>
+</ol>
+I'm going to focus on the first two stages for brevity.
+
+<h3>Polyhedral Model.</h3>
+
+<ol>
+    <li><b>Iteration Domain</b>: For each line of code, 
+    the iteration domain represents the range of values taken by the loop iterators 
+surrounding the statement. For example, in the following C code: 
+<p>
+<div class="code-box">
+<pre><code><b>// Comments are bolded</b>
+
+int N = 3; <b>                             // External parameter</b>
+for (int i = 0; i < N; i++) {           <b>// Loop 1</b>
+    for (int j = 0; j < N - i; j++) {   <b>// Loop 2</b>
+        printf("i = %d, j = %d\n", i, j);
+    }
+}
+</code></pre>
+</div><br/>
+The iteration domain represents all possible pairs of the values $(i, j)$, which together we call <i>iteration vectors</i> (denoted $\vec{it}$), that the variables 
+will take when the loops execute. In this example:
+<ul><br/>
+
+    <li>The outer loop ($i$) runs from $0$ to $2$ (inclusive of $0$, exclusive of $3$), so the values of $i$ are $\{0, 1, 2\}$.</li><br/>
+    <li>The inner loop ($j$) runs from $0$ to $N - i - 1$, so the values of $j$ vary depending on $i$. For example, when $i = 1$, $j$ runs from $0$ to $1$.</li><br/>
+    <li>Thus, the iteration domain is constrained by 
+        \[\begin{cases}
+        0\leq i < N\\
+        0\leq j < N - i\end{cases}\]
+        where $N$ is the <i>external parameter</i> defined by the limits of the outer and inner loop. External parameters typically refer to constants or values defined outside the loop that influence loop bounds. This 
+        gives us the final iteration domain: \[
+        \begin{align*}\mathcal{D} &= \{(i, j)\mid 0\leq i < N, 0\leq j < N - i\}\\
+        &= \{(0, 0), (0, 1), (1, 0), (1, 1), (2, 0)\} \end{align*}\]   </li><br/>
+    </ul>
+As $i$ increases, the range of $j$ decreases. This creates fewer $j$ values as $i$ gets larger, resulting in a triangular pattern:
+<p>
+<div class="code-box">
+<pre><code><b>// Comments are bolded</b>
+
+    j
+    ↑
+2   ●  ●  ●
+1   ●  ●
+0   ●
+    ------------
+    0  1  2   → i            
+</code></pre>
+</div><br/>
+This triangular shape is the 2D polyhedron of iteration vectors, constrained by the loop bounds, and can be generalized for larger values of $N$. 
+
+<p></p>In general, the domain $\mathcal{D}$ of a <a href="https://en.wikipedia.org/wiki/Statement_(computer_science)">statement</a> $X$ is defined as
+\[D_X = \left\{\vec{it}\quad\middle|\quad M_X\cdot\begin{pmatrix}
+\vec{it}\\
+\vec{N}\\
+1
+\end{pmatrix}\geq 0
+\right\}\] 
+where $M_X$ is a matrix defining the domain polyhedron.<p></p>
+<li><b>Dependencies & Legality:</b> A dependency $\Delta_{X\to Y}$ from statement $X$ to $Y$ 
+means that the statement $X$ needs to be executed before statement $Y$ to preserve the semantics of the program.
+This dependency is defined on a set of iteration vector values for $X$ and $Y$ with the following constraints:
+<ul><br/>
+    <li>$X$ and $Y$ access the same memory location (either $X$ or $Y$ is a write).</li><br/>
+    <li>$X$ is executed before $Y$.</li>
+</ul>
+To see this concept, consider the following C code block that demonstrates the dependency:
+<p>
+<div class="code-box">
+    <pre><code><b>// Comments are bolded</b>
+
+<b>// Example: Two statements X and Y accessing the same memory location</b>
+int shared_data = 0; <b>// Shared memory location</b>
+
+<b>// Function representing statement X</b>
+void statement_X(int it_X) {
+    shared_data = it_X; <b>// Write access</b>
+    printf("X executed with iterator: %d\n", it_X);
+}
+
+<b>// Function representing statement Y</b>
+void statement_Y(int it_Y) {
+    printf("Y executed with iterator: %d, shared_data: %d\n", it_Y, shared_data);
+}
+
+int main() {
+    int iterations = 5;
+
+    <b>// Simulating the execution of X and Y with dependencies</b>
+    for (int i = 0; i < iterations; i++) {
+        <b>// Dependency: X must be executed before Y</b>
+        statement_X(i); <b>// Execute X first</b>
+        statement_Y(i); <b>// Then execute Y</b>
+    }
+
+    return 0;
+}             
+    </code></pre>
+    </div><br/>
+These constraints are similar to the domain of statements define a polyhedron:
+\[\Delta_{X\to Y} = \left\{\begin{pmatrix}
+\vec{it}_X\\
+\vec{it}_Y
+\end{pmatrix}\quad
+\middle|\quad M_{X\to Y}\cdot\begin{pmatrix}
+\vec{it}_X\\
+\vec{it}_Y\\
+\vec{N}\\
+1
+\end{pmatrix}\geq 0
+\right\}\]
+</li>
+<li><b>Scheduling Function:</b> A scheduling function $\Lambda$ maps 
+each statement and iteration vector of its domain to a lexicographically-ordered unique multidimensional timestamp. 
+For a specific statement $X$, the function $\Lambda_X$ maps its iteration vectors to a multidimensional timestamp using  <a href = "https://en.wikipedia.org/wiki/Affine_transformation">affine forms</a>, $\Phi_{X,i}$.
+These affine forms depend on iterators $\vec{it}$ and parameters $\vec{N}$, thus allowing us to 
+define \[\Lambda_X: 
+\begin{align*}
+&\mathcal{D}_X(\vec{N})\quad\to\mathbb{N}^m\\
+&\vec{it}\qquad\hspace{6mm}\to\left(\Phi_{X, 0}(\vec{it}) \dots, \Phi_{X,m - 1}(\vec{it})\right)
+\end{align*}\] 
+where $m$ is the number of scheduling dimensions, and each affine form $\Phi_{X, i}$ is defined by 
+\[\Phi_{X, i} = T_{X, i}\cdot \begin{pmatrix}
+\vec{it}\\
+\vec{N}\\
+1
+\end{pmatrix}\]
+where $T_{X, i}$ is the transformation vector that helps compute the timestamp. <p></p>
+For a statement $X$ surrounded by $k$ nested loops, we can prove there are at most $2k + 1$ dimensions are necessary to express 
+all possible scheduling transformations, but in practice, there is no upper limit on the number of dimensions.
+</li>
+</ol>
+<h3>Polyhedral Scheduler.</h3>
+A polyhedral scheduler is the algorithm that computes our scheduling function $\Lambda$. We 
+now know that there are two types of integer affine constraints that determine the computation of this function and that 
+it has to preserve the semantics of the initial code and optimize some cost functions. 
+Now let's go into how to build the ILP problem, with the proximity cost function representing 
+the most common cost function defined in SOTA schedulers (I'll be choosing an <i>iterative</i> scheduler):
+<ol>
+    <li><b>Scheduling Problem Formulation:</b> Consider an iterative scheduler where the algorithm must find the 
+    full scheduling transformations $\Lambda$ step by step, building an ILP problem to find 
+each scheduling dimension $\Phi_{X,i}$, starting from the outermost dimension until the innermost.
+It will terminate when enough scheduling dimensions are found and is aiming to find the optimal vector 
+of coefficients $T_{X,i}\hspace{1mm}\forall S$.</li><br/>
+<li><b>Validity/Legality Constraint:</b> This is the core of the polyhedral scheduler 
+    because it constrains the transformation vectors $T_{X, i}$ to have values that preserve the program 
+    semantic which ensures the legality of the schedule. For each dependency $\Delta_{X\to Y}$,
+    $X$ has to be executed before $Y$:
+    \[\left(\vec{it},\vec{it}'\right)\in\Delta_{X\to Y}\implies \Lambda_Y\left(\vec{it}'\right)\succ \Lambda_X\left(\vec{it}\right)\]
+where $\succ$ represents lexicographically greater.
+<p>Because for an iterative scheduler, each dimension $\Phi_{X, i}$ is computed from the outermost 
+    to the innermost, the definition of validity becomes:
+    \[\left(\vec{it},\vec{it}'\right)\in\Delta_{X\to Y}\implies \Phi_{Y, i}\left(\vec{it}'\right)\geq \Phi_{X, i}\left(\vec{it}\right)\]
+until the dependency $\Delta_{X\to Y}$ is satisfied. You can actually linearize this 
+implication using <a href="https://en.wikipedia.org/wiki/Farkas%27_lemma">Farkas' Lemma</a>; which makes it 
+so the constraints are then expressed only on the space of variables composed by the vectors $T_{X, i}$ and $T_{Y, i}$.
+</li>
+<li><b>Progression Constraint:</b> The progression constraint is added at each 
+scheduling iteration to ensure the progression of the algorithm. Its purpose is to ensure 
+that the schedule defines a complete order for the iteration space and to make sure that the trivial zero solution 
+is completely avoided. The constraint definition forces the next scheduling solution to be linearly independent 
+of previous solutions in the iteration space.
+
+<p>Define the matrix $Z_X$ as the row-by-row concatenation of previous scheduling dimension solutions
+$T_{X, i}$. We can define the orthogonal complement $Z^{\perp}_X$ as: 
+\[Z^{\perp}_X = I - Z^{\intercal}_X\left(Z_X Z^{\intercal}_X\right)^{-1}Z_X\]
+where $I$ is the <a href="https://en.wikipedia.org/wiki/Identity_matrix">identity matrix</a> and $Z^{\intercal}_X$ is the
+transpose of $Z_X$. Given we're 
+limiting the scheduling search space to only consider solutions that're non-negative, the progression
+constraint is as the row-by-row sum of the orthogonal complement matrix: 
+\[\forall i, Z^{\perp}_{X, i}\cdot z^{*}_X\geq 0\quad \wedge\quad \sum_i Z^{\perp}_{X, i}\cdot z^{*}_X \geq 1\]
+where $Z^{\perp}_{X, i}$ is a row of $Z^{\perp}_X$, and $z^{*}_X$ being the next solution to 
+be computed.
+</p></li>
+<li><b>Proximity Cost Function:</b> The proximity cost function 
+is defined in order to find among all legal solutions the ones that optimize temporal locality.
+Basically the idea is to minimize the distance (in scheduling time) between multiple accesses to the same 
+memory position. Data dependencies describe multiple accesses to the same memory position, then the 
+<i>proximity</i> objective is to minimize the dependency distance.
+For a dependency $\Delta_{X\to Y}$ we can define the constraint 
+
+\[\left(\vec{it},\vec{it}'\right)\in\Delta_{X\to Y}\implies \Phi_{i, Y}\left(\vec{it}\right)\leq \min_{\vec{u}, w}\vec{u}\vec{N} + w \]
+where $\vec{u}$ and $w$ are the cost functions to minimize. 
+In essence, proximity accurately represents a useful transformation and indirectly 
+favors the first dimensions to be parallel, with a dependency distance of $0$.</li>
+</ol><p></p>
+<h2>Wrapping Up.</h2>
+
+Now you have all the pieces to go ahead and start building your own polyhedral scheduler and 
+add lots of optimizations that I didn't cover in the post like <a href = "https://en.wikipedia.org/wiki/Loop_fission_and_fusion">loop fusion</a>
+to make it high-performant. Hopefully you learned something 
+cool from the math too!
+ <p></p>I know it's likely the contents of this post 
+are too rigorous for the average reader so if you have any questions, 
+feel free to dm me <a href="https://x.com/hy3na_xyz">@hy3na_xyz</a> and I can help out wherever.
+
+
+<p></p>
+<i>Always laugh at the competition.</i></p>
+<b>- hyena</b><p></p>
+09/19/2024
+</html>
+</html>
