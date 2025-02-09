@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Always laugh at the competition." />
+    <title></title>
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          },
+          macros: {
+            theorem: ["\\textbf{Theorem:} \\textit{#1}", 1],
+            proof: ["\\textbf{Proof:} \\textit{#1}", 1]
+          }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    
+    <style>
+        body {
+            max-width: 700px;  
+            margin: 5vh auto; 
+            padding: 0 20px;   
+            font-family: monospace;
+            line-height: 1.4em;
+            background-color: rgb(237, 237, 237);
+            color: rgb(0, 0, 0);
+        }
+        .code-box {
+            max-width: 100%;          
+            height: auto;             
+            overflow-x: auto;         
+            background-color: rgb(217, 217, 217);
+            border: 1px solid #000000;
+            padding: 10px;            
+            box-sizing: border-box;   
+            font-family: monospace;   
+        }
+
+        .code-box pre, .code-box code {
+            margin: 0;               
+            padding: 0;              
+            white-space: pre-wrap;   
+            word-wrap: break-word;   
+        }
+
+        body a { color: rgb(0, 0, 0); }
+        body .thread { color: rgb(0, 0, 0); text-decoration: none; }
+        body .thread:hover { text-decoration: underline; }
+        body hr { border: 2.5px dotted rgb(0, 0, 0); }
+        body p:not(:nth-child(2)) { margin-top: 30px; }
+        body p:nth-child(2) { margin-top: 0px; }
+        body h3:first-child { margin-bottom: 5px; font-size: 20px; }
+        body h4 { margin-top: 30px; }
+        body h5 { margin: 0px; font-weight: 100; }
+        @media only screen and (max-width: 650px) { 
+            body { width: 90vw !important; } 
+        }
+
+
+        a {
+            user-select: text; 
+        }
+        .MathJax { font-size: 1em !important; }
+    </style>
+</head>
+<body>
+    <main>
+    <a href= "../index.html" >Return to home</a> 
+    <p></p>
+    <p></p>
+    <h2>The Current Frontier.</h2>
+    <hr />
+    </main>
+</body>
+<h3>DRAM.</h3>
+<p>Dynamic random access memory (DRAM) is a major component of nearly all computing systems and is widely known to be the largest bottleneck as we continue to move forward 
+    towards the data working set sizes exponentially increasing across application domains like machine learning, genomics, etc. 
+
+    Naturally the solution would be to scale main memory across its capacity, energy, cost, and performance to all scale in an efficient manner across technology generations. This is to no surprise hard as hell, so the bottleneck continues to squeeze and worsen with time.
+
+    For example, the memory capacities of large machine learning models increased by more than 10,000 times in the past five years. Unofrtunately, DRAM technology scaling is becoming increasingly challenging:
+    it is increasingly difficult to enlarge DRAM chip capcity at low cost while also maintaining DRAM performance, energy efficiency, and reliability. THus fulfilling the increasing memory needs of modern workloads is becoming increasingly costly and difficult.
+
+
+</p>
+<h3>Data Movement.</h3>
+A major resaon for the main memory bottleneck is the high energy and latency cost associated with <i>data movement</i>. In modern computing systems,
+to perform any operation on data that resides in main memory, the processor must retreive the data from main memory. This requires the memory controller to issue commands to the DRAM module across a relatively 
+slow and power hungry off-chip bus (known as the <i>memory channel</i>). The DRAM module sends the requested data across the memory channel, after which the data is placed into caches and registers. The CPU 
+can perform computation on the data once teh data is in its registers. Data movement from the DRAM to the CPU incurs long latency and consumes a signficant amount of energy. 
+These costs are often excacerbated by the fact that much of the data brought into the cahces is <i>not reused</i> by the CPU or accelerators providing little benefit in return 
+for the high latency and energy cost.
+<h3>Processor-centric</h3>
+This cost of data movement is the fundamental issue with processor-centric nature of contemporary computing systems. The CPU is considered to be the master in the system 
+and computation is performed only in the processor (and accelerators).
+
+In contrast, data storage and communication units, including the main memory are treated as unintelligent workers that are incapable of computation. 
+As a result of this processor-centric design paradigm, data moves a lot in the system (back and forth between the computation units and communciation / storage units) so that computation can be done on it.
+With the increasingly <i>data -centric</i> nature of contemporary and emerging applications, the processor-centric design paradigm leads to great inefficiency in performance, energy, and cost.
+
+For example, most of the real estate within a single compute node is already dedicated to handling data movement and storage (e.g., large caches, memory controllers, interconnects, communication interfaces and associated circuitry, main memory)
+and recent works show that 
+<ol>
+    <li>More than 62% of the enetire system energy of a mobile device is spent on data movement between the processor and the memory hierarchy for widely-used mobile workloads</li>
+    <li>More than 90% of the entire system energy is spent on memory when executing large commercial edge neural netwrok models on modern edge machine learning accelerators.</li>
+</ol>
+<h3>PIM</h3>
+These large overheads of data movememt in modern systems along with technology advances that enable better integration of memory and logic have recently prompted the re-examination of an old idea that we will broadly call 
+<i>processing-in-memory (PIM)</i>. The key idea is to place computation mechanisms in or near where the data is stored (i.e., inside the memory chips, in the logic layer of 3D-stacked memory, in the mmeory controllers, inside large caches, inside storage units or inside sensing units), so 
+that data movement between where the computation is done and where the data is stored is reduced or eliminated, compared to contemporary processor-centric systems. 
+
+PIM enables the ability to perform operations and execute software tasks either using 
+<ol>
+    <li>The operational properties of the memory circuitry itself</li>
+    <li>Some form of processing logic (e.g., accelerators, simple cores, reconfigurable logic) added inside the memory subsystem close to the memory circuitry.</li>
+</ol>
+PIM has been around for more than half a century, however past efforts were never widely adopted for the following reasons.
+<ol>
+    <li>Difficulty of integrating processing elements with DRAM</li>
+    <li>Lack of critical memory-related scaling challenges that current technology and applications face today.</li>
+    <li>The large effort expended to tolerate data movement bottlenecks (via processor-centric techniques) at the cost of more complexity in software and hardware.</li>
+</ol>
+As a result of advances in modern memory architectures such as the integration of logic and memory in a 3D stacked manner, various recent works explore a range of PIM architectures 
+for multiple different use cases.
+
+<h3>Processing-Using-Memory (PUM)</h3>
+We can exploit analog operational properties of memory circuitry to perform simple yet powerful common operations that the chip is inherently efficient at or could be made efficient at performing. 
+This approach ahs the potential to provide large performance and energy gains with minimal changes to memory chips and circuitry. Some solutions that fall 
+under this approach take advantage of existing DRAM design to cleverly and efficiently perform <i>bulk operations</i> (i.e., operations on an entire row of DRAM cells), such as bulk copy and data initialization, bitwise Boolean operations, and other operations., arithmetic operations, and lookup table based operations.
+Other solutions take advantage of analog operational principles of SRAM, NAND flash, and emerging non-volatile memory technologies (e.g., phase-change memory, PCM, spin-transfer torqque magnetic RAM, STT-MRAM, metal-oxide resistive RAM, ReRAM, etc.) to perform similar bulk operations or 
+other specialized computations like convolutions and matrix multiplications.
+<h3>Processing-Near-Memory (PNM)</h3>
+The second apporach is a potentially more general-purpose and flexible manner by adding computation capability to conventional memory controllers, memory chips, memory modules or the logic layer(s) of the relatively new 
+<i>3D-stacked memory technologies</i>. This approach is is especially catalyzed by recent advancements in 3D-stacked memory technologies that include a logic procesisng layer underneath memory layers and recent prototpyes that map the 
+computing capability inside DRAM chips and DRAM modules. In order to stack multiple layers of mmeory, 3D-stacked chips use vertical through-silicon vias (TSVs) to connect the layers to each other, and to the I/O drivers of the chip.
+
+
+The TSVs provide much greater intenral bandwidth within the 3D stack layers than is available externally on the memory channel. Several such 3D-stacked mmeory architectures, such as the Hybrid Memory Cube and 
+High-Bandwidth Memory (HBM), include a <i>logic layer</i>, where designers can add some processing logic (e.g., accelerators, simple cores, reconfigurable logic)  to take advantage of this high internal bandwidth. 
+Emerging die-stacking and packaging technologies, like <i>hybrid bonding</i> and <i> monolithic 3D integration</i>, can amplify the benfits of this approach by greatly improving internal bandwidth across layers and potentially adding logic layers between memory layers. 
+<h3>Adoption challenges of PIM</h3>
+<ol>
+    <li>Programming models and code generation support (via compilers, high-level APIs, and software frameworks) for PIM</li>
+    <li>Runtime engines for adaptive code and data scheduling, data mapping, access/sharing control</li>
+    <li>Memory coherence mechanisms that allow for collaborative host-PIM execution</li>
+    <li>Virtual memory support for a unified memory space between host and PIM main memory</li>
+    <li>Data structures that inherently take into account the concurrent execution model of a many-core PIM system</li>
+    <li>Infrastructures to assess the benefits and feasibility of PIM systems, including benchmarks and simulation infrastructures for PIM prototyping.</li>
+</ol>
+
+<p></p>
+<i>Always laugh at the competition.</i></p>
+<b>- hyena</b><p></p>
+09/24/2024
+</html>
