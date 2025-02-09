@@ -27,7 +27,7 @@
             padding: 0 20px;   
             font-family: monospace;
             line-height: 1.4em;
-            background-color: rgb(237, 237, 237);
+            background-color: rgb(169, 169, 169);
             color: rgb(0, 0, 0);
         }
         .code-box {
@@ -85,6 +85,14 @@
 
     For example, the memory capacities of large machine learning models increased by more than 10,000 times in the past five years. Unofrtunately, DRAM technology scaling is becoming increasingly challenging:
     it is increasingly difficult to enlarge DRAM chip capcity at low cost while also maintaining DRAM performance, energy efficiency, and reliability. THus fulfilling the increasing memory needs of modern workloads is becoming increasingly costly and difficult.
+
+    The first key concern is the difficulty of scaling DRAM capacity (i.e., density or cost per bit), bandwidth, and latency <i>at the same time</i>. While the processing core count doubles every two years, the DRAM capacity doubles onlyevery three years, as shown by and the latter is slowing down.
+    This trend causes <i> memory capcity per core</i> to drop by approximately 30% every two years.  The trend is even worse for <i> memory bandiwdth per core</i> - in the approximately two decades between 1999 and 2017,, DRAM chip storage 
+    chip storage capacity (for the most commonly-used DDRx chip of the time) has improved by approximately 128x while DRAM bandwidth has improved only by approximately 
+    20x. In the same period of about two decades, DRAM latency (as measured by the row cycling time has remained almost constant (i.e., reduced by only 30%)), making it a signfiicant 
+    performance bottleneck for many modern workloads, including in-memory databases, graph processing, data analytics, data center workloads, neural networks, 
+    large language models, and consumer workloads. As low-latency computing is becoming ever more important due to the ever-increasing need to process large amounts of data at real time, and predictable performance continues to be a critical 
+    concern in the design of modern computing systems, it is increasingly important to design low-latency main memory chips. 
 
 
 </p>
@@ -157,4 +165,8 @@ Emerging die-stacking and packaging technologies, like <i>hybrid bonding</i> and
 <i>Always laugh at the competition.</i></p>
 <b>- hyena</b><p></p>
 09/24/2024
+    <footer>
+        <hr />
+        <p><i>Always laugh at the competition.</i></p>
+    </footer>
 </html>
