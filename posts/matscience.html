@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Always laugh at the competition." />
+    <title>Silicon Photonics.</title>
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          },
+          macros: {
+            theorem: ["\\textbf{Theorem:} \\textit{#1}", 1],
+            proof: ["\\textbf{Proof:} \\textit{#1}", 1]
+          }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        
+        body {
+            max-width: 700px;  
+            margin: 5vh auto; 
+            padding: 0 20px; 
+            font-size: 12.5px;  
+            font-family: monospace;
+            line-height: 1.4em;
+            background-color: rgb(169, 169, 169);
+            color: rgb(0, 0, 0);
+        }
+        .code-box {
+            max-width: 100%;          
+            height: auto;             
+            overflow-x: auto;         
+            background-color: rgb(217, 217, 217);
+            border: 1px solid #000000;
+            padding: 10px;            
+            box-sizing: border-box;   
+            font-family: monospace;   
+        }
+
+        .code-box pre, .code-box code {
+            margin: 0;               
+            padding: 0;              
+            white-space: pre-wrap;   
+            word-wrap: break-word;   
+        }
+        
+        body a { color: rgb(0, 0, 0); }
+        body .thread { color: rgb(0, 0, 0); text-decoration: none; }
+        body .thread:hover { text-decoration: underline; }
+        body hr { border: 2.5px dotted rgb(0, 0, 0); }
+        body p:not(:nth-child(2)) { margin-top: 30px; }
+        body p:nth-child(2) { margin-top: 0px; }
+        body h3:first-child { margin-bottom: 5px; font-size: 20px; }
+        body h4 { margin-top: 30px; }
+        body h5 { margin: 0px; font-weight: 100; }
+        @media only screen and (max-width: 650px) { 
+            body { width: 90vw !important; } 
+        }
+
+        a {
+            user-select: text; 
+        }
+        .MathJax { font-size: 1em !important; }
+        
+        footer {
+            position: relative;
+            width: 100vw; 
+            left: 50%;
+            transform: translateX(-50%); 
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer hr {
+            width: 100vw; 
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            border: 2.5px dotted rgb(0, 0, 0);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+    < <a href= "../index.html" >Return to home</a> 
+    <p></p>
+    <p></p>
+    <h2> Material Science & Fabrication Challenges in Silicon Photonics.</h2>
+    <h3>Overview</h3>
+    Silicon photonics is a promising avenue to overcome the bandiwdth and energy constraints plaguing defense edge computing and datacenters. By using light for data transport & computation, photonic systems can potentially achieve high-speed processing with ultra-low thermal footprints.
+    However, realizing photonic computing at scale requires breakthroughs in materials (for fast, tunable optical elements) and fabrication processes (to integrate photonics with existing silicon electronics). 
+    My goal with thispost is to examine the SOTA in tunable photonic materials and manufacturing and outline how joint public private sector initatives that can help align together to drive next-generation photonic computing.
+    <h2>Material Science Innovation.</h2>
+    Next-generation photonic computing hinges on materials that can modulate light rapidly and reversibly without introducing 
+    contamination or incompatibilities in silicon fabs. The ideal tunable optical material should exhibit a <b>large refractive index change, low optical loss, and fast switching speeds</b> all while 
+    integrable in standard processes. Let's take a look at the current advances in tunable metasurface materials, alternative phase change materials, and CMOS-compatible integration materials that 
+    meet these criteria. 
+    <h3>Tunable Optical Metasurface Materials</h3>
+    Fast, Clean, High Contrast. Tunable optical metasurfaces use arrays of sub-wavelength structures to manipulate light.
+    Actively controlling such metasurfaces at high speed requires materials that significatly change optical materials (index or absorpotion) under 
+    electrical or optical stimuli. Traditional solutions like liquid crystals provide tunability but trade off speed and refractive contrast. Emerging material innovations seek to avoid these trade-offs:
+    <ul>
+        <li><b>Chalcogenide Phase-Change Materials (PCMs)</b>: These materials (e.g. $\text{Ge}_2\text{Sb}_2\text{Te}_5$ or GST) can switch between
+        amorphous and crystalline states, dramatically changing their refractive index in the process. GST has been widely studied and offers large index contrast and nonvolatility (i.e. it holds its state) with 
+    proven endurance over $10^{12}$ cycles. However, conventional PCMs like GST contain tellurium and can exhibit high optical abosrpotion in one or both phases,
+which means any phase change induces loss as well as phase shift. This <b>amplitude leakage</b> limits their use for pure phase 
+modulation in telecom wavelengths. Researchers have therefore turned to <b>tellurium-free PCMs</b> with improved optical clarity. For example,
+antimony based compounds $\text{Sb}_2\text{S}_3$ and $\text{Sb}_2\text{Se}_3$ have recently been identified 
+as <b>ultra-low-loss PCMs</b> for photonics, showing <b>negligible absorption $(k < 10^{-5})$</b> in both states across the <a href="https://en.wikipedia.org/wiki/C_band_(infrared)">C-band</a>.
+These materials still offer a substantial refractive index change upon switching, but with far less insertion loss. Notably $\text{Sb}_2\text{S}_3$ avoids both $\text{Te}$ and $\text{Se}$, meaning it leaves no harmful chalcogenide residues.
+Both $\text{Sb}_2\text{S}_3$ and $\text{Sb}_2\text{Se}_3$ switch at modest termperatures (~270 C and 200 C respectively); much lower than silicon's melting point - enabling 
+fast phase transitions without damage. Because their refractive indices are close to silicon's, they can be integrated as cladding or patches on silicon waveguides with minimal mode mismatch.
+These advances suggest it is possible to attain <b>high-contrast, low-loss optical modulation</b> without introducing materials that would contaminate a cleanroom (e.g., $\text{Te}$, $\text{Se}$).
+Even switching speed is attractive: phase-change materials can be toggled in the <b>nanosecond regime</b> with short optical or electrical pulses which can be demnstrated by GST in rewritable optical disks.
+The new PCM compositions are expected to achieve comparably fast switching, making them suitable for GHz-bandwidth reconfigurable metasurfaces. In summary,
+by replacing GST/GSST with Te/Se-free PCMs like $\text{Sb}_2\text{S}_3$, tunable photonic devices can achieve large index shifts without optical loss penaliteis or toxic byproducts, all on a silicon friendly platform.
+<p></p><li><b>Mott Insulator Phase Transitions</b>: Another route to tunable optics without chemical residue is exploiting <i>reversible insulator-metal transitions</i> in compounds such as 
+vanadium dioxide ($\text{VO}_2$). $\text{VO}_2$, undergoes an abrupt change in optical properties when heated above ~68 C or driven by an electric pulse, switching from an insulating state to a metallic state. This transition is 
+<b>fast (sub nanosecond switching demonstrated)</b> and hysteretic. $\text{VO}_2$-based optical devices (e.g. modulators, metasurface pixels) can thus be 
+toggled extremely quickly. The material contains no chalcogenides (only $\text{V}$ and $\text{O}$), so it is more compatible with semicondcutor fab processes from a 
+contaimination standpoint. $\text{VO}_2$ is <b>volatile</b> (it returns to the insulating state when cooled), meaning it requires continuous basis or thermal control to hold a given state - 
+an important distinction from non-volatile chalcogenide PCMs. The major challenge with $\text{VO}_2$ is that while it provides a sizable 
+refractive index change, its phases (especially the metallic phase) are quite <b>lossy in the near-infrared</b>
+In fact, across much of the telecom spectrum, $\text{VO}_2$ absorbs a significant fraction of light in both states, which makes purely optical signals attenuate.
+    This limits its usefulness in high-Q resonators or low-loss beam steering: one can get high-speed amplitude modulation or switching, but with insertion losses that may be unacceptable for many computing applications. Research shows 
+    you can possibly mitigate this by using $\text{VO}_2$ in <i>plasmonic</i> or <i>nonlinear optical</i> regimes where only a small volume undergoes the phase change,
+    or by operating in wavelength bands where $\text{VO}_2$'s absopriotn is lower (e.g. mid-IR). $\text{VO}_2$ represents a <b> fast, CMOS-compatible tunable material</b>,
+    but its optical loss must be carefully managed if we intend to have it be used within photonic computing systems. 
+</p></li>
+<li><b>Electro-Optic (Pockels) Materials</b>: Rather than physically changing phase or state, some materials offer <b>intrinsic refractive index tuning under an electric field</b> via the Pocklels effect. 
+Lithium niobate ($\text{LiNbO}_3$) and barium titante ($\text{BTO}$) are two such crystals that can achieve <b>ultra-fast (ps to sub-ns) modulation</b> with minimal 
+optical loss. Modern thin-film lithium niobate ($\text{TFLN}$) technology allows $\text{LiNbO}_3$ to be bonded on silicon substrates, 
+enabling modulators with 3-dB bandwidths exceeding 100 GHz in research settings. These <b>Pockel modulators</b> do not rely on absorption or heating at all - 
+they directly translate a volatage into a change in optical phase, offering <i>clean and repeatable high-speed</i> switching. The challenge here is not performance 
+but <b>integration</b>: $\text{LiNbO}_3$ and similar materials are not part of the standard silicon toolkit. Integrating them means adding a heterogeneous step (e.g. wafer bonding a 
+$\text{LiNbO}_3$ film onto a silicon wafer, or growing an oxide crystal in situ) which is an <b>overhaul to the fab flow</b>. While this can be done in specialized 
+photonics fabs or via external processes, it runs counter to the "no overhaul" constraint. Nonetheless, given their impressive speed and low drive voltage. Pocker materials are a 
+strong options for the future of photonic computing, especially if processes like transfer printing or wafer bonding can incorporate them after most silicon proccessing is done.</li>
+<p></p>
+<li><b>Carrier-Plasma Tunable Materials</b>: There is a path that stays entirely within silicon's material system by using <i>free-carrier effects</i> in silicon or conductive oxides. 
+In silicon itself, injecting or removing charge carriers (electrons / holes) changes the refractive index (the plasma dispersion effect). Silicon modulators using 
+p-n junctions (depletion or injections) are already key components in today's silicon photonics. They are fully CMOS-compatible by design, since they are basically modified 
+transistors/waveguides. These devices can operate at tens of gigahertz. However, the <b>index change from free-carrier effects is modest</b>, so achieving a large 
+phase shift requires either long modulators (several millimeters) or resonance enahncement (ring modulators), and the modulation 
+inherently adds optical loss due to free-carrier absorption. This means purely silicon modulators tend to have a limited modulation depth unless one tolerates significant attentuation.
+Recent innovations include using <b>transparent conducting oxides</b> like indium tin oxide ($\text{ITO}$)  in the photonic device stack.
+$\text{ITO}$'s refractive index can be dramatically altered by an applied volatage (accumulting electrons at an interface), especially when biased near its "epsilon-near-zero" point.
+$\text{ITO}$ and similar materials (e.g. graphene, conductiveq polymers) have shown extremely high modulation speeds ($>50\text{ GHz}$) and decent index contrast, and they can be deposited 
+with standard sputtering techniques. They do introduce some absorption at telecomm wavelengths and are not part of a typical CMOS process, but they 
+can potentially be added in back-end-of-line steps. These <b>plasma-dispersion-based materials</b> are volatile (they revert when bias is removed) but 
+offer <i>no physical change or residues</i> making them repeatable and clean. Purely silicon or silicon-compataible electronic optical effects can achieve high speed but 
+sacrifice either modulation depth or add drive power.</li>
+</ul> 
+Thus we get our final toolbox of materials to implement tunable optical metasurfaces and photonic circuits:
+<ul>
+    <li><i>Non-volatile PCMs ($\text{Sb}_2\text{S}_3$, $\text{Sb}_2\text{Se}_3$, etc.)</i> for large, memory retaining index shifts with low loss. 
+        These avoid toxic elements and can be added as thin films on silicon photonic platforms. </li><p></p>
+    <li><i>Mott insulators ($\text{VO}_2$)</i> for ultra-fast, high-contrast switching using only temperature or voltage stimuli, albeit with attention to optical loss.<p>
+    <li><i>Pockel Materials ($\text{LiNbO}_3$, $\text{BTO}$)</i> for extremely fast, low-loss modulation through electric fields, integrated heterogeneously .<p></p></li>
+    <li><i>Silicon-native approaches (carrier plasma in Si, ITO, graphene)</i> for fast, CMOS-friendly tuning at the cost of smaller index changes per unit length.</li>
+</ul>
+<h3>Phase-Change Materials Beyond GST</h3>
+ Phase-change materials deserve special focus because of their unique ability to <b>store a state (non-volatility)</b> and achieve large optical contrast. In optical computing,
+  this means they can function as <b> optical memory or switches that remember their configuration</b> without power. The canonical PCM, $\text{GST}$ ($\text{Ge}_2\text{Sb}_2\text{Te}_5$), and 
+  its variants (like $\text{GSST}$, $\text{Ge}_2\text{Sb}_2\text{Se}_4\text{Te}_1$) have been used to demonstrate optical switches, 
+  reconfigurable waveguides, and even <b>photonic memory and computing elements</b>. Unfortunately GST brings along tellurium (and selenium in GSST) which 
+  are <b>undesirable in fabs</b> due to contamination risks and the potential for corrosive byproducts. Moreover, as noted, GST-type materials tend to be absorbing in 
+  either the amorphous or crystalline state (in telecom bands), causing loss. To address these issues, there is a hunt for <b>new PCMs that are faster, lower-loss, and CMOS-compatible</b>.
+  <p></p>
+  Some developments are below:
+  <ul>
+    <li><b>$\text{Sb}_2\text{S}_3$ (Antimony Sulfide)</b>: This compound has emerged as a top candidate for next-gen phase-change photonics due to it 
+        not containing $\text{Te}$ or $\text{Se}$ and only elements that are already part of the silicon process. $\text{Sb}_2\text{S}_3$ can reversibly 
+        switch between amorphous and crystalline states, with an index contrast comparable to GST. Critically, it has <b>virtually zero absorption in both phases 
+            at 1550 nm</b>, meaning an optical signal can pass through either state with negligible attenuation.  Its switching threshold (~270 C) is a bit 
+            higher than GST's but still reachable with microheaters or laser pulses, and once switched it remains stable until another pulse is applied (non-volatile).
+            Because its refractive index (~2.5) is close to silicon's (~3.5) and much higher than $\text{SiO}_2$ cladding (~1.44), $\text{Sb}_2\text{S}_3$ integrated on silicon 
+            can strongly perturb light in a waveguide, enabling compact optical memory cells or modulator segments. From a fabrication standpoint, $\text{Sb}_2\text{S}_3$ 
+            can be deposited by sputtering or evaporation and pattenred, likley at back-end stages since it doesn't need high-temp processing after deposition (the phase change is induced by 
+            local heating). This means one could incorporate $\text{Sb}_2\text{S}_3$ <b>without overhaulting front-end processes</b> by adding it to finished 
+            silicon photonic wafers in a post-processing step.
+        <p></p></li>
+    <li><b>$\text{Sb}_2\text{Se}_3$ (Antimony Selenide)</b>: A close cousin to $\text{Sb}_2\text{S}_3$, this material includes selenium instead of sulfure and was demonstrated as an ultralow-lowss PCM with its 
+        advantage being an even lower switching temperature of ~200 C translating to faster or lower-energy switching. Its drawback being the reintroduction of selenium brings into question again this point on 
+        fab contamination. Both $\text{Sb}_2\text{S}_3$ and $\text{Sb}_2\text{Se}_3$ proved that we can get the large $10\pi$ phase shifts typical of GST but without the optical penalty.<p></p></li>
+    <li><b>Other Emerging PCMs:</b> Beyond antimony chalcogenides, researchers are investigating classes like binary GeTe alloys, tellurium-free phase-change oxides, and phase-change photonic polymers. For example, GeTe (Germanium Telluride) itself has fewer components than GST and can switch faster at the expense of a higher set/reset temperature. Doped variants (like Ge₃Sb₂Te₆ or adding silicon/oxygen) can adjust crystallization speed and stability. There are also early studies on phase-change oxides (e.g., perovskite oxides that change phase) which might be more fab-friendly, though these are still nascent. Another angle is to use nanostructured phase-change composites that confine the material in a matrix to reduce drift and residue</li>
+    </ul>
+
+In terms of <b>speed</b>, PCMs have demonstrated switching in the order of nanoseconds. In optical storage technology, GST bits are written with 
+laser pulses $10\text{ ns}$ (melting and quenching spots to amorphize them) and crystallized in ~$20\text{ ns}$. Electrically, PCM memory can achieve 
+~$50 \text{ ns}$ programming pulses and is projected to improve. For defense and data center applications, a few nanoseconds of switching time is extremely fast - it would 
+spport modulation or reconfiguration in the GHz range. More importantely, due to them being non-volatile and retaining a state with <b>zero static power</b> consumption until reprogtrammed, 
+we are able to get edge devices that can hold an optical routing or filtering configuration while idle or for data centers photonic circuits that can 
+dynamically reconfigure interconnects and incur no power in steady-state.
+<h3>Takeaway</h3>
+We need to accelerate the discovery of tunable optical material that is CMOS fab compatible if we ever hope to see photonic computing at scale.
+</main> <p></p>
+<b>- hyena</b><p></p>
+01/15/2025 
+<footer>
+      <hr />
+      <p><p><i>Always laugh at the competition.</i></p>
+  </footer>
+  </body>
